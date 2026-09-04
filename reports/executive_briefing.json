@@ -1,0 +1,85 @@
+{
+  "baseline_market_level": 2434.4,
+  "predicted_rate_bci": 1835.4,
+  "net_rate_change": -599.0,
+  "bullish_drivers_raising_freight": [
+    {
+      "feature": "sin_day_of_year",
+      "current_value": -0.31,
+      "shap_impact": 45.15
+    },
+    {
+      "feature": "route_c3_usd_per_tonne",
+      "current_value": 26.81,
+      "shap_impact": 31.05
+    },
+    {
+      "feature": "cos_day_of_year",
+      "current_value": -0.95,
+      "shap_impact": 22.14
+    }
+  ],
+  "bearish_drivers_lowering_freight": [
+    {
+      "feature": "bci_index",
+      "current_value": 2027.1,
+      "shap_impact": -366.15
+    },
+    {
+      "feature": "sp500_index",
+      "current_value": 5151.8,
+      "shap_impact": -69.34
+    },
+    {
+      "feature": "bci_lag_1",
+      "current_value": 1944.4,
+      "shap_impact": -64.15
+    }
+  ],
+  "top_overall_factors": [
+    {
+      "feature": "bci_index",
+      "current_value": 2027.1,
+      "shap_impact": -366.15
+    },
+    {
+      "feature": "sp500_index",
+      "current_value": 5151.8,
+      "shap_impact": -69.34
+    },
+    {
+      "feature": "bci_lag_1",
+      "current_value": 1944.4,
+      "shap_impact": -64.15
+    },
+    {
+      "feature": "sin_day_of_year",
+      "current_value": -0.31,
+      "shap_impact": 45.15
+    },
+    {
+      "feature": "capesize_fleet_dwt_m",
+      "current_value": 413.64,
+      "shap_impact": -42.82
+    },
+    {
+      "feature": "iron_ore_price_usd",
+      "current_value": 104.07,
+      "shap_impact": -31.31
+    }
+  ],
+  "procurement_decision": {
+    "action": "WAIT",
+    "urgency": "MEDIUM",
+    "color": "red",
+    "rationale": "Freight rates projected to soften by -10.1% over the next 7 days. Delaying tender offers cost savings for bulk procurement.",
+    "expected_change_pct": -10.12
+  },
+  "latest_date": "2024-07-19",
+  "current_spot_bci": 2027.1,
+  "forecast_7d_bci": 1822.044850324325,
+  "forecast_range_95pct": {
+    "lower": 1323.5,
+    "upper": 2320.6
+  }
+}

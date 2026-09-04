@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIH26006 - Temporary AI Test Interface (Disposable)</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #2ea043;
+            --accent-red: #f85149;
+            --accent-yellow: #d29922;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .tag {
+            background-color: #ff7b7222;
+            color: #ff7b72;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 14px;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #21262d;
+            font-size: 14px;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-val {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            margin-top: 12px;
+        }
+
+        select, input[type="number"], input[type="range"] {
+            width: 100%;
+            background-color: #0d1117;
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            background-color: var(--accent-blue);
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 18px;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .decision-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .decision-green { background-color: #2ea04333; color: #3fb950; border: 1px solid #2ea043; }
+        .decision-red { background-color: #f8514933; color: #ff7b72; border: 1px solid #f85149; }
+        .decision-gray { background-color: #8b949e33; color: #c9d1d9; border: 1px solid #8b949e; }
+
+        .json-box {
+            background-color: #090d13;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 220px;
+            overflow-y: auto;
+            color: #7ee787;
+        }
+
+        img.shap-img {
+            max-width: 100%;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div>
+            <h2 style="margin:0; color:#fff;">🧪 Maritime Freight AI — Testing Interface</h2>
+            <div style="font-size:13px; color:var(--text-muted); margin-top:4px;">
+                Temporary Playground for testing FastAPI endpoints & ML predictions. (Can be deleted anytime)
+            </div>
+        </div>
+        <span class="tag">DISPOSABLE TEST HARNESS</span>
+    </div>
+
+    <div class="grid">
+        <!-- 1. Live Market Snapshot -->
+        <div class="card">
+            <h3 class="card-title">📊 Live Market Indicators (Test Feed)</h3>
+            <div id="market-metrics">
+                <div class="metric-row"><span>Baltic Capesize Index (BCI)</span><span class="metric-val" id="val-bci">Loading...</span></div>
+                <div class="metric-row"><span>Baltic Dry Index (BDI)</span><span class="metric-val" id="val-bdi">Loading...</span></div>
+                <div class="metric-row"><span>Route C5 (W. Australia → India/Asia)</span><span class="metric-val" id="val-c5">Loading...</span></div>
+                <div class="metric-row"><span>Route C3 (Brazil → India/Asia)</span><span class="metric-val" id="val-c3">Loading...</span></div>
+                <div class="metric-row"><span>Iron Ore (62% Fe CFR China)</span><span class="metric-val" id="val-ore">Loading...</span></div>
+                <div class="metric-row"><span>VLSFO Bunker Fuel</span><span class="metric-val" id="val-fuel">Loading...</span></div>
+                <div class="metric-row"><span>Paradip/Vizag Port Congestion</span><span class="metric-val" id="val-congestion">Loading...</span></div>
+                <div class="metric-row"><span>China Manufacturing PMI</span><span class="metric-val" id="val-pmi">Loading...</span></div>
+            </div>
+            <button class="btn" style="background:#21262d; margin-top:12px;" onclick="fetchMarketSnapshot()">🔄 Refresh Market Feed</button>
+        </div>
+
+        <!-- 2. Test Forecasting Form -->
+        <div class="card">
+            <h3 class="card-title">⚙️ Test Prediction & "What-If" Controls</h3>
+            
+            <label>Select Route Target:</label>
+            <select id="select-route">
+                <option value="C5">Route C5 (W. Australia → East Coast India/Asia, $/tonne)</option>
+                <option value="C3">Route C3 (Brazil → East Coast India/Asia, $/tonne)</option>
+                <option value="BCI">Baltic Capesize Index (BCI Index Points)</option>
+            </select>
+
+            <label>Forecast Horizon:</label>
+            <select id="select-horizon">
+                <option value="7" selected>7 Days Ahead (Spot Chartering Window)</option>
+                <option value="14">14 Days Ahead (Tactical Booking)</option>
+                <option value="30">30 Days Ahead (Monthly Procurement)</option>
+                <option value="1">1 Day Ahead (Next Session)</option>
+            </select>
+
+            <label>What-If: Iron Ore Price ($/tonne): <span id="lbl-ore" style="color:#58a6ff;">$104</span></label>
+            <div class="range-container">
+                <input type="range" id="sim-ore" min="70" max="220" value="104" oninput="document.getElementById('lbl-ore').innerText = '$' + this.value">
+            </div>
+
+            <label>What-If: Paradip/Vizag Port Wait (days): <span id="lbl-cong" style="color:#58a6ff;">4.5 days</span></label>
+            <div class="range-container">
+                <input type="range" id="sim-cong" min="1" max="15" step="0.5" value="4.5" oninput="document.getElementById('lbl-cong').innerText = this.value + ' days'">
+            </div>
+
+            <button class="btn" onclick="runForecastTest()">⚡ Run Forecast API Test</button>
+        </div>
+    </div>
+
+    <!-- 3. Forecast Results Panel -->
+    <div class="card" style="margin-top:20px;">
+        <h3 class="card-title">🎯 Model Test Output & Chartering Recommendation</h3>
+        
+        <div id="results-placeholder" style="color:var(--text-muted); font-size:14px;">
+            Click "Run Forecast API Test" to call the backend and inspect predictions.
+        </div>
+
+        <div id="results-content" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+                <div>
+                    <div id="decision-badge" class="decision-badge">DECISION</div>
+                    <div id="decision-rationale" style="font-size:14px; color:var(--text-primary); max-width:650px;"></div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:12px; color:var(--text-muted);">PROJECTED FREIGHT RATE</div>
+                    <div id="pred-rate" style="font-size:26px; font-weight:700; color:#fff;"></div>
+                    <div id="pred-change" style="font-size:14px; font-weight:600;"></div>
+                </div>
+            </div>
+
+            <div class="grid" style="grid-template-columns: 1fr 1fr; margin-top:12px;">
+                <div class="card" style="background:#0d1117;">
+                    <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">95% Confidence Bounds (Uncertainty Range)</div>
+                    <div id="ci-bounds" style="font-size:16px; font-weight:600; color:var(--accent-blue);"></div>
+                </div>
+                <div class="card" style="background:#0d1117;">
+                    <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Spot Baseline at Evaluation</div>
+                    <div id="spot-rate" style="font-size:16px; font-weight:600; color:#fff;"></div>
+                </div>
+            </div>
+
+            <!-- Raw JSON response for developer debugging -->
+            <label style="margin-top:16px;">Raw Backend JSON Response:</label>
+            <pre class="json-box" id="raw-json"></pre>
+        </div>
+    </div>
+
+    <!-- 4. SHAP Explainability Reports -->
+    <div class="card" style="margin-top:20px;">
+        <h3 class="card-title">🔍 SHAP Model Explainability Plots (From /reports)</h3>
+        <p style="font-size:13px; color:var(--text-muted);">
+            These charts were automatically generated by the SHAP engine during training to explain which market variables drove the model's predictions.
+        </p>
+        <div class="grid">
+            <div>
+                <h4 style="font-size:13px; margin:0 0 8px 0; color:var(--text-muted);">Global Feature Importance Ranking:</h4>
+                <img class="shap-img" src="/reports/shap_summary.png" alt="SHAP Summary Plot" onerror="this.src='../reports/shap_summary.png'">
+            </div>
+            <div>
+                <h4 style="font-size:13px; margin:0 0 8px 0; color:var(--text-muted);">Latest Prediction Force Decomposition (Waterfall):</h4>
+                <img class="shap-img" src="/reports/shap_latest_waterfall.png" alt="SHAP Waterfall Plot" onerror="this.src='../reports/shap_latest_waterfall.png'">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = "http://127.0.0.1:8000";
+
+    async function fetchMarketSnapshot() {
+        try {
+            const res = await fetch(`${API_BASE}/api/v1/market/snapshot`);
+            const data = await res.json();
+            document.getElementById('val-bci').innerText = data.bci_index.toLocaleString() + ' pts';
+            document.getElementById('val-bdi').innerText = data.bdi_index.toLocaleString() + ' pts';
+            document.getElementById('val-c5').innerText = '$' + data.route_c5_usd_per_tonne.toFixed(2) + ' / tonne';
+            document.getElementById('val-c3').innerText = '$' + data.route_c3_usd_per_tonne.toFixed(2) + ' / tonne';
+            document.getElementById('val-ore').innerText = '$' + data.iron_ore_price_usd.toFixed(2) + ' / tonne';
+            document.getElementById('val-fuel').innerText = '$' + data.bunker_fuel_vlsfo_usd.toFixed(2) + ' / tonne';
+            document.getElementById('val-congestion').innerText = data.port_congestion_east_india_days.toFixed(1) + ' days';
+            document.getElementById('val-pmi').innerText = data.china_manufacturing_pmi.toFixed(2);
+        } catch (err) {
+            console.warn("API not reachable yet, using static mock fallback for test interface", err);
+            document.getElementById('val-bci').innerText = '2,027.1 pts';
+            document.getElementById('val-bdi').innerText = '1,714.9 pts';
+            document.getElementById('val-c5').innerText = '$13.35 / tonne';
+            document.getElementById('val-c3').innerText = '$26.81 / tonne';
+            document.getElementById('val-ore').innerText = '$104.07 / tonne';
+            document.getElementById('val-fuel').innerText = '$638.20 / tonne';
+            document.getElementById('val-congestion').innerText = '4.5 days';
+            document.getElementById('val-pmi').innerText = '50.15';
+        }
+    }
+
+    async function runForecastTest() {
+        const route = document.getElementById('select-route').value;
+        const horizon = parseInt(document.getElementById('select-horizon').value);
+        const orePrice = parseFloat(document.getElementById('sim-ore').value);
+        const portWait = parseFloat(document.getElementById('sim-cong').value);
+
+        const payload = {
+            horizon_days: horizon,
+            route: route,
+            scenario_overrides: {
+                iron_ore_price_usd: orePrice,
+                port_congestion_east_india_days: portWait
+            }
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/api/v1/predict`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) throw new Error("Backend returned status " + res.status);
+            const data = await res.json();
+            renderResults(data);
+        } catch (err) {
+            console.warn("API request failed, generating client simulation for testing", err);
+            // Fallback mock simulation for pure client testing
+            const currentSpot = route === 'C5' ? 13.35 : (route === 'C3' ? 26.81 : 2027.1);
+            const oreImpact = (orePrice - 104) * 0.04;
+            const congImpact = (portWait - 4.5) * 0.15;
+            const pred = currentSpot + oreImpact + congImpact - (horizon * 0.08);
+            const pct = ((pred - currentSpot) / currentSpot) * 100;
+            const action = pct >= 4.0 ? 'CHARTER_NOW' : (pct <= -4.0 ? 'WAIT' : 'HOLD_NEUTRAL');
+
+            renderResults({
+                status: "success (fallback simulation)",
+                current_spot_rate: currentSpot,
+                predicted_rate: Math.round(pred * 100) / 100,
+                expected_change_pct: Math.round(pct * 100) / 100,
+                confidence_interval_95pct: {
+                    lower: Math.round((pred - 1.2) * 100) / 100,
+                    upper: Math.round((pred + 1.2) * 100) / 100
+                },
+                recommendation: {
+                    action: action,
+                    urgency: action === 'CHARTER_NOW' ? 'HIGH' : (action === 'WAIT' ? 'MEDIUM' : 'LOW'),
+                    color: action === 'CHARTER_NOW' ? 'green' : (action === 'WAIT' ? 'red' : 'gray'),
+                    rationale: action === 'WAIT' 
+                        ? `Freight rates projected to soften by ${pct.toFixed(1)}% over the next ${horizon} days. Delaying tender offers cost savings.` 
+                        : (action === 'CHARTER_NOW' ? `Rates projected to rise by +${pct.toFixed(1)}%. Charter now to secure lower freight.` : `Rates expected to remain stable (${pct.toFixed(1)}%).`),
+                    expected_change_pct: Math.round(pct * 100) / 100
+                },
+                route_details: { horizon_days: horizon, route: route }
+            });
+        }
+    }
+
+    function renderResults(data) {
+        document.getElementById('results-placeholder').style.display = 'none';
+        document.getElementById('results-content').style.display = 'block';
+
+        const rec = data.recommendation;
+        const badge = document.getElementById('decision-badge');
+        badge.innerText = rec.action.replace('_', ' ') + ` (${rec.urgency} URGENCY)`;
+        badge.className = 'decision-badge ' + (rec.action === 'CHARTER_NOW' ? 'decision-green' : (rec.action === 'WAIT' ? 'decision-red' : 'decision-gray'));
+
+        document.getElementById('decision-rationale').innerText = rec.rationale;
+        
+        const unit = document.getElementById('select-route').value === 'BCI' ? ' pts' : ' $/tonne';
+        document.getElementById('pred-rate').innerText = data.predicted_rate + unit;
+        
+        const chgElem = document.getElementById('pred-change');
+        chgElem.innerText = (data.expected_change_pct >= 0 ? '+' : '') + data.expected_change_pct + '%';
+        chgElem.style.color = data.expected_change_pct >= 0 ? '#3fb950' : '#ff7b72';
+
+        document.getElementById('spot-rate').innerText = data.current_spot_rate + unit;
+        document.getElementById('ci-bounds').innerText = `[${data.confidence_interval_95pct.lower} to ${data.confidence_interval_95pct.upper}]${unit}`;
+
+        document.getElementById('raw-json').innerText = JSON.stringify(data, null, 2);
+    }
+
+    // Auto-fetch market snapshot on load
+    window.onload = fetchMarketSnapshot;
+</script>
+
+</body>
+</html>

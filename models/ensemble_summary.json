@@ -1,0 +1,47 @@
+{
+  "models": {
+    "xgboost": {
+      "model_type": "XGBoost",
+      "target": "target_bci_next_7d",
+      "mae": 210.12,
+      "rmse": 280.17,
+      "mape": 13.76,
+      "directional_accuracy": 64.75,
+      "test_samples": 139
+    },
+    "bilstm": {
+      "model_type": "BiLSTM_DeepLearning",
+      "target": "target_bci_next_7d",
+      "lookback_days": 30,
+      "mae": 306.63,
+      "rmse": 378.49,
+      "mape": 20.41,
+      "directional_accuracy": 60.55,
+      "test_samples": 109
+    },
+    "ensemble": {
+      "model_type": "Hybrid_Ensemble",
+      "weights": {
+        "xgboost": 0.55,
+        "lstm": 0.35,
+        "ridge": 0.1
+      },
+      "mae": 237.73,
+      "rmse": 296.7,
+      "mape": 15.74,
+      "directional_accuracy": 59.63,
+      "residuals_std": 254.35
+    }
+  },
+  "latest_decision": {
+    "action": "WAIT",
+    "urgency": "MEDIUM",
+    "color": "red",
+    "rationale": "Freight rates projected to soften by -10.1% over the next 7 days. Delaying tender offers cost savings for bulk procurement.",
+    "expected_change_pct": -10.12
+  },
+  "reports": {
+    "shap_summary_plot": "reports\\shap_summary.png",
+    "shap_waterfall_plot": "reports\\shap_latest_waterfall.png"
+  }
+}

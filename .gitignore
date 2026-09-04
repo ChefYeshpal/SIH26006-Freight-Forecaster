@@ -1,0 +1,178 @@
+# ==============================================================================
+# 🚢 SIH26006 Maritime Freight Forecasting - Comprehensive .gitignore
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Python Bytecode & Compilation Artifacts
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.dylib
+*.dll
+*.pyd
+
+# ------------------------------------------------------------------------------
+# 2. Virtual Environments & Package Managers
+# ------------------------------------------------------------------------------
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+pip-log.txt
+pip-delete-this-directory.txt
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+build/
+dist/
+develop-eggs/
+.eggs/
+parts/
+var/
+sdist/
+
+# ------------------------------------------------------------------------------
+# 3. Environment Variables, Secrets & API Keys (CRITICAL FOR SECURITY)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+credentials.json
+client_secret*.json
+service_account.json
+secrets.toml
+
+# ------------------------------------------------------------------------------
+# 4. Machine Learning, Deep Learning & Experiment Tracking
+# ------------------------------------------------------------------------------
+# PyTorch / TensorFlow checkpoints & temporary weights
+*.pt.tmp
+*.pth.tmp
+*.ckpt
+*.h5.tmp
+checkpoints/
+runs/
+tensorboard/
+events.out.tfevents.*
+
+# Experiment tracking tools
+wandb/
+mlruns/
+.mlflow/
+
+# Model & Data caches
+.cache/
+data_cache/
+models_cache/
+
+# Large compressed archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# ------------------------------------------------------------------------------
+# 5. Jupyter Notebooks & Data Science Checkpoints
+# ------------------------------------------------------------------------------
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+*-checkpoint.ipynb
+
+# ------------------------------------------------------------------------------
+# 6. Testing, Quality & Profiling Artifacts
+# ------------------------------------------------------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+.tox/
+.nox/
+coverage.xml
+nosetests.xml
+htmlcov/
+*.cover
+*.py,cover
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+*.prof
+*.pstats
+
+# ------------------------------------------------------------------------------
+# 7. Database, Logs & Temporary Files
+# ------------------------------------------------------------------------------
+*.log
+*.sqlite
+*.sqlite3
+*.db
+tmp/
+temp/
+scratch/
+*.tmp
+*.bak
+*.swp
+*~
+
+# ------------------------------------------------------------------------------
+# 8. Web & Frontend Frameworks (Streamlit / Next.js / React)
+# ------------------------------------------------------------------------------
+node_modules/
+.npm/
+.next/
+out/
+.streamlit/secrets.toml
+.streamlit/credentials.toml
+
+# ------------------------------------------------------------------------------
+# 9. IDEs & Code Editors
+# ------------------------------------------------------------------------------
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+
+# ------------------------------------------------------------------------------
+# 10. Operating System Specific Files
+# ------------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
