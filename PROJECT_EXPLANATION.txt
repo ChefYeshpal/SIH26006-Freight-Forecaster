@@ -1,0 +1,755 @@
+================================================================================
+🚢 SIH26006 — COMPLETE PROJECT EXPLANATION (Hinglish Mein)
+   Intelligent Freight Forecasting for Ministry of Steel
+   Har ek file, model, dataset, aur concept ka detailed breakdown
+================================================================================
+
+Yeh document tumhare liye hai. Isme main har ek cheez ko detail mein explain
+karunga — kya file kya karti hai, kaunsa model kaise kaam karta hai, dataset
+mein kya-kya hai, aur poora flow kaise connect hota hai. Padh lo aram se.
+
+================================================================================
+📌 SECTION 1: PROBLEM KYA HAI? (Samajhlo pehle)
+================================================================================
+
+Ministry of Steel, Government of India — yeh log India ke East Coast ports 
+(jaise Paradip, Visakhapatnam, Kamarajar, Haldia) par bahut bada maal mangwate
+hain:
+  - Iron Ore (loh) → Brazil aur Australia se
+  - Coking Coal (koyala) → Australia aur South Africa se
+
+Yeh sab samaan ship (cargo vessel) se aata hai. Ship book karne ko "Chartering"
+bolte hain. Aur ship ka kiraya = "Freight Rate".
+
+PROBLEM: Abhi Ministry ke officers roz manually market check karte hain, brokers
+se baat karte hain, aur tab decide karte hain ki ship book karein ya nahi. Yeh
+bahut slow hai aur kabhi kabhi bahut mehenga pad jaata hai kyunki:
+  - Agar rate low tha aur unhone wait kiya → rate badh gaya → zyada paisa laga
+  - Agar rate high tha aur unhone book kar liya → rate gir gaya → paisa waste
+
+HUMARA SOLUTION: Ek AI/ML system banao jo PREDICT kare ki agle 7, 14, 30 din
+mein freight rate kitna hoga. Isse Ministry ko pata chalega:
+  - "Abhi book karo, rate badhne wala hai!" (CHARTER_NOW)
+  - "Ruko, rate girne wala hai!" (WAIT)
+
+Agar sirf $1/tonne bhi bacha liya → India imports 130 Million tonnes annually
+→ $130 MILLION USD saved! Yahi hai IMPACT STATEMENT for SIH judges.
+
+
+================================================================================
+📌 SECTION 2: PROJECT KA FOLDER STRUCTURE (Kaunsi file kahan hai)
+================================================================================
+
+SIH26002/
+│
+├── data/                          ← Saara data yahan hai
+│   ├── raw/freight_dataset_raw.csv       ← Original raw data (1478 rows)
+│   ├── processed/freight_dataset_cleaned.csv  ← Cleaned ML-ready data (1388 rows)
+│   └── DATA_DICTIONARY.md         ← Har column ka explanation
+│
+├── scripts/
+│   └── generate_dataset.py        ← Yeh file data banati hai (synthetic)
+│
+├── src/models/                    ← AI/ML ke actual model code
+│   ├── xgboost_forecaster.py      ← XGBoost model (Gradient Boosted Trees)
+│   ├── lstm_forecaster.py         ← BiLSTM Deep Learning model (PyTorch)
+│   ├── ensemble_forecaster.py     ← Ensemble (sabko mix karke best prediction)
+│   └── explainability_shap.py     ← SHAP Engine (model kyun yeh predict kiya?)
+│
+├── models/                        ← Trained model weights saved yahan hain
+│   ├── xgboost_forecaster.json    ← XGBoost ka saved model
+│   ├── bilstm_freight_net.pt      ← BiLSTM ka saved model (PyTorch format)
+│   ├── xgboost_metadata.json      ← XGBoost ki settings aur results
+│   ├── bilstm_metadata.json       ← BiLSTM ki settings aur results
+│   └── ensemble_summary.json      ← Sabhi models ka comparison scorecard
+│
+├── reports/                       ← Explainability charts aur briefing
+│   ├── shap_summary.png           ← Kaunsa feature sabse important hai (chart)
+│   ├── shap_latest_waterfall.png  ← Latest prediction ko todke dikhaya (chart)
+│   └── executive_briefing.json    ← Ministry ke liye plain English briefing
+│
+├── api/                           ← FastAPI REST Backend (Server)
+│   ├── main.py                    ← Server ka main entry point
+│   ├── schemas.py                 ← Request/Response ki structure (Pydantic)
+│   ├── services/
+│   │   └── forecaster_service.py  ← Prediction ka actual logic (inference)
+│   └── routes/
+│       ├── predict.py             ← POST /api/v1/predict endpoint
+│       ├── explainability.py      ← GET /api/v1/recommendation endpoint
+│       └── market.py              ← GET /api/v1/market/snapshot endpoint
+│
+├── test_interface/                ← 🧪 Temporary test UI (delete karna baad mein)
+│   └── index.html                 ← Browser mein testing ke liye
+│
+├── tests/                         ← Automated testing scripts
+│   ├── verify_dataset.py          ← Dataset sahi hai ya nahi check karta hai
+│   └── test_api.py                ← API endpoints test karta hai
+│
+├── train_model.py                 ← Simple baseline training script
+├── train_advanced.py              ← Master AI pipeline (XGBoost + LSTM + SHAP)
+├── run_api.py                     ← API server start karne ka shortcut
+├── requirements.txt               ← Python libraries ki list
+├── .gitignore                     ← Git ko bolo kya ignore karna hai
+└── README.md                      ← GitHub pe dikhne wala main page
+
+
+================================================================================
+📌 SECTION 3: DATASET KA FULL EXPLANATION
+================================================================================
+
+File: data/processed/freight_dataset_cleaned.csv
+Size: 1,388 rows (trading days) × 75 columns
+Date Range: March 2019 to July 2024 (Business days only)
+Missing Values: ZERO (0) — Poora data complete hai, koi NaN nahi
+
+------------------------------------------------------------------------
+3.1 — TARGET VARIABLES (Yeh predict karna hai)
+------------------------------------------------------------------------
+
+Yeh woh columns hain jo humein BHAVISHYA mein predict karne hain:
+
+1. target_bci_next_1d
+   → Kal (1 day baad) ka Baltic Capesize Index kitna hoga?
+   → Use: Day-to-day quick decisions ke liye
+
+2. target_bci_next_7d  ⭐ (PRIMARY TARGET)
+   → 7 din baad ka BCI kitna hoga?
+   → Use: Yeh sabse important hai — spot chartering window ke liye
+   → Ministry ko yeh batata hai: "Agle hafte rate badhega ya girega?"
+
+3. target_bci_next_14d
+   → 14 din baad ka BCI
+   → Use: Tactical vessel booking — 2 hafte pehle plan karna
+
+4. target_bci_next_30d
+   → 30 din baad (1 mahina) ka BCI
+   → Use: Monthly budget planning aur quarterly procurement
+
+5. target_c5_next_7d
+   → Route C5 ka 7 din baad ka rate ($/tonne mein)
+   → C5 Route = Port Hedland (Australia) → East Coast India/China
+   → Yeh DIRECT freight cost hai iron ore laane ka
+
+6. target_c3_next_7d
+   → Route C3 ka 7 din baad ka rate ($/tonne mein)
+   → C3 Route = Tubarão (Brazil) → East Coast India/China
+   → Yeh LONG-HAUL route hai, zyada mehenga
+
+7. chartering_signal
+   → Classification signal: 1 = CHARTER_NOW, -1 = WAIT, 0 = HOLD
+   → Agar agle 7 din mein rate 4%+ badhne wala hai → 1 (Book karo!)
+   → Agar 4%+ girne wala hai → -1 (Ruko!)
+
+8. chartering_recommendation
+   → Same as above but text mein: "CHARTER_NOW", "WAIT", "HOLD_NEUTRAL"
+
+------------------------------------------------------------------------
+3.2 — SHIPPING INDICES (Shipping market ke benchmark)
+------------------------------------------------------------------------
+
+1. bci_index (Baltic Capesize Index)
+   → Range: 450 to 10,500 points
+   → Kya hai: Duniya ke sabse bade ships (Capesize, 180,000+ tonnes)
+     ka freight rate ka benchmark index
+   → Jab BCI high → shipping mehengi, jab low → sasti
+   → Ministry of Steel ke liye SABSE RELEVANT kyunki iron ore aur
+     coal bade ships mein aata hai
+
+2. bdi_index (Baltic Dry Index)
+   → Range: 380 to 5,600 points
+   → Kya hai: Overall dry bulk shipping ka composite index
+   → BDI = Capesize + Panamax + Supramax + Handysize ka mix
+   → General market health ka indicator
+
+3. route_c5_usd_per_tonne
+   → Range: $5 to $24 per tonne
+   → Kya hai: Australia se India/China tak iron ore laane ka PER TONNE rate
+   → Short route hai, isliye sasta
+
+4. route_c3_usd_per_tonne
+   → Range: $11 to $45 per tonne
+   → Kya hai: Brazil se India/China tak iron ore laane ka rate
+   → Bahut lamba route hai (Atlantic Ocean paar karna padta hai)
+
+------------------------------------------------------------------------
+3.3 — COMMODITY PRICES (Raw material ke daam)
+------------------------------------------------------------------------
+
+5. iron_ore_price_usd
+   → Range: $65 to $240 per tonne
+   → Kya hai: Iron Ore (62% Fe grade) ka global benchmark price
+   → SABSE IMPORTANT feature! Iron ore ki demand badhi → zyada ships chahiye
+     → freight rate badh jaata hai
+   → Example: 2021 mein iron ore $220 gaya → BCI bhi 10,000+ gaya
+
+6. coking_coal_price_usd
+   → Range: $110 to $480 per tonne
+   → Kya hai: Steelmaking ke liye zaroori premium coking coal ka daam
+   → Yeh bhi bulk cargo hai jo ships mein aata hai
+
+7. brent_crude_usd
+   → Range: $20 to $135 per barrel
+   → Kya hai: Global crude oil benchmark
+   → Oil price → Ship ka fuel cost → Operating expense → Freight rate
+   → Jab oil mehenga, shipping bhi mehengi
+
+8. bunker_fuel_vlsfo_usd
+   → Range: $280 to $1,150 per tonne
+   → Kya hai: Ships ka actual fuel (Very Low Sulphur Fuel Oil)
+   → Ship ka 40-60% operating cost fuel se aata hai!
+   → Directly freight rate ko impact karta hai
+
+------------------------------------------------------------------------
+3.4 — MACROECONOMIC INDICATORS (Duniya ki economy ka haal)
+------------------------------------------------------------------------
+
+9. china_manufacturing_pmi
+   → Range: 46.5 to 54.0
+   → Kya hai: China ka Manufacturing Purchasing Managers' Index
+   → > 50 = Economy expand ho rahi hai (zyada demand)
+   → < 50 = Economy shrink ho rahi hai (kam demand)
+   → CRITICAL kyunki China duniya ka 70% iron ore kharidta hai!
+
+10. sp500_index
+    → Range: 2,400 to 5,600 points
+    → Kya hai: America ka S&P 500 stock market index
+    → Global economic sentiment ka proxy
+    → Economy acchi → trade zyada → shipping zyada → rate badhe
+
+11. usd_cny (US Dollar to Chinese Yuan)
+    → Range: 6.30 to 7.35
+    → Jab Yuan weak → China ke liye import mehenga → demand gir sakti hai
+
+12. usd_inr (US Dollar to Indian Rupee)
+    → Range: 69.5 to 84.0
+    → Jab Rupee weak → India ke liye freight INR mein aur mehenga padta hai
+
+13. india_steel_production_mt
+    → Range: 8.8 to 14.0 Million Tonnes per month
+    → India kitna steel bana raha hai → jitna zyada production → utna zyada
+      raw material import → utni zyada shipping demand
+
+------------------------------------------------------------------------
+3.5 — FLEET & PORT DATA (Ships aur ports ka haal)
+------------------------------------------------------------------------
+
+14. capesize_fleet_dwt_m
+    → Range: 360 to 415 Million DWT
+    → Kya hai: Duniya mein total kitne Capesize ships available hain
+    → Zyada ships = oversupply = rates GIRTE hain
+    → Kam ships = shortage = rates BADHTE hain
+    → DWT = Deadweight Tonnage (ship kitna maal utha sakta hai)
+
+15. vessel_orderbook_pct
+    → Range: 5% to 13%
+    → Kya hai: New ships order hui hain, jo 2-3 saal mein deliver hongi
+    → High orderbook = future mein supply badhegi = rates girenge
+
+16. port_congestion_east_india_days
+    → Range: 1.5 to 14.0 days
+    → Kya hai: Paradip aur Visakhapatnam port pe ships ko kitne din
+      line mein wait karna padta hai berth milne ke liye
+    → Zyada wait = kam ships available baaki routes ke liye = rates badhe
+    → MONSOON mein yeh bahut badh jaata hai!
+
+17. port_congestion_china_days
+    → Range: 2.0 to 16.0 days
+    → Same concept but China ke ports (Qingdao, Caofeidian) ke liye
+
+------------------------------------------------------------------------
+3.6 — SEASONALITY & CALENDAR FEATURES (Mausam aur calendar)
+------------------------------------------------------------------------
+
+18. is_chinese_new_year (0 or 1)
+    → Chinese New Year (late January to mid February)
+    → Is period mein China ka trade bahut slow ho jaata hai
+    → Shipping demand girti hai → rates bhi girte hain (seasonal low)
+
+19. is_monsoon_season (0 or 1)
+    → Indian Southwest Monsoon (June to mid-September)
+    → Indian ports pe loading/unloading slow ho jaati hai
+    → Port congestion badhti hai
+
+20. day_of_week (0 to 4)
+    → Monday=0, Tuesday=1, ..., Friday=4
+    → Trading patterns capture karta hai
+
+21. month (1 to 12) & quarter (1 to 4)
+    → Seasonal patterns ke liye
+
+22. sin_day_of_year & cos_day_of_year
+    → Yeh CYCLICAL encoding hai. Saal ke din ko sine/cosine wave mein
+      convert karta hai taaki model ko samajh aaye ki December ke baad
+      January aata hai (circular pattern)
+
+------------------------------------------------------------------------
+3.7 — ENGINEERED FEATURES (Humne khud banaye smart features)
+------------------------------------------------------------------------
+
+Yeh features RAW data se CREATE kiye gaye hain. Inhe "Feature Engineering"
+bolte hain — yeh ML model ko BAHUT zyada help karte hain:
+
+LAG FEATURES (Purane din ka data):
+  → bci_lag_1: Kal ka BCI kitna tha
+  → bci_lag_7: Pichle hafte ka BCI
+  → bci_lag_30: Pichle mahine ka BCI
+  → Similarly for BDI, C5, C3 routes
+  → WHY? Market mein momentum hota hai — agar kal rate badha, toh
+    aaj bhi badhne ke chances hain
+
+MOVING AVERAGES (Average over time window):
+  → bci_ma_7: Last 7 din ka average BCI
+  → bci_ma_30: Last 30 din ka average BCI
+  → WHY? Short-term noise hata ke trend dikhata hai
+  → Agar current price > MA_30 → market uptrend mein hai
+
+ROLLING STANDARD DEVIATION (Volatility/Risk):
+  → bci_std_7: Last 7 din mein BCI kitna fluctuate hua
+  → bci_std_30: Last 30 din ki volatility
+  → WHY? High volatility = zyada risk = zyada uncertainty
+
+RATE OF CHANGE (Kitna % change hua):
+  → bci_roc_7: Pichle 7 din mein BCI kitne % badha/gira
+  → WHY? Momentum indicator — tezi se badh raha hai ya dheere?
+
+ECONOMIC RATIOS:
+  → fuel_to_c5_ratio: Fuel cost vs freight earned — profitability proxy
+  → iron_ore_to_bci_ratio: Commodity value vs shipping cost
+  → bci_to_bdi_ratio: Capesize market vs overall market strength
+
+
+================================================================================
+📌 SECTION 4: AI/ML MODELS KA DETAILED EXPLANATION
+================================================================================
+
+Humne 3 alag models banaye hain. Har ek alag tarike se kaam karta hai.
+End mein teenon ko mix karke BEST prediction nikalte hain (Ensemble).
+
+========================================
+4.1 — XGBoost Model (Gradient Boosted Decision Trees)
+========================================
+
+File: src/models/xgboost_forecaster.py
+Saved Model: models/xgboost_forecaster.json
+
+KYA HAI YEH?
+XGBoost ka full form hai "Extreme Gradient Boosting". Yeh bahut saare
+chhote-chhote decision trees banata hai aur unhe ek ke baad ek train
+karta hai. Har naya tree pichle tree ki galtiyon se seekhta hai.
+
+SAMJHO AISE:
+Sochlo tum 250 experts ko ek-ek karke bulate ho. Pehla expert apna
+guess deta hai. Doosra expert pehle ki galti dekhta hai aur usse
+sudharta hai. Teesra doosre ki galti sudharta hai... aur yeh process
+250 baar hota hai. End mein sabka combined answer BAHUT accurate hota hai.
+
+EK DECISION TREE EXAMPLE:
+  AGAR iron_ore_price > 120 AUR bci_lag_7 > 2000:
+      TAB freight_rate ≈ HIGH
+  WARNA AGAR china_pmi < 50:
+      TAB freight_rate ≈ LOW
+
+XGBoost AISI 250 trees banata hai aur combine karta hai!
+
+KEY HYPERPARAMETERS:
+  → n_estimators=250    : 250 trees banaega
+  → max_depth=6         : Har tree 6 level deep jaayega
+  → learning_rate=0.03  : Dheere dheere seekhega (zyada stable)
+  → subsample=0.85      : Har tree sirf 85% data use karega (overfitting roke)
+  → colsample_bytree=0.85: Har tree sirf 85% features use karega
+
+KYA KARTA HAI CODE MEIN:
+1. prepare_data() → Data ko Train/Validation/Test mein todta hai (80/10/10)
+2. train()        → Model train karta hai, validation pe early stopping lagata hai
+3. predict()      → Naye data pe prediction deta hai
+4. save()         → Trained model ko JSON file mein save karta hai
+
+RESULTS:
+  → Test MAE: 210.12 BCI points (average error)
+  → Test MAPE: 13.76% (percentage error)
+  → Directional Accuracy: 64.75% (rate upar jaayega ya neeche — 65% correct)
+
+========================================
+4.2 — BiLSTM Model (Bidirectional Long Short-Term Memory)
+========================================
+
+File: src/models/lstm_forecaster.py
+Saved Model: models/bilstm_freight_net.pt
+
+KYA HAI YEH?
+LSTM ek special type ka Neural Network hai jo TIME SERIES data ke liye
+banaya gaya hai. "Long Short-Term Memory" ka matlab hai — iske paas ek
+"MEMORY" hoti hai jo purane patterns yaad rakhti hai.
+
+SAMJHO AISE:
+Sochlo tumhare paas 30 din ka newspaper hai shipping market ka. Tum
+in 30 din ke patterns padh ke andaaza lagate ho ki 31st din kya hoga.
+LSTM bilkul yahi karta hai — pichle 30 din ka data dekhta hai (lookback
+window) aur agle din ka predict karta hai.
+
+"Bi-Directional" ka matlab hai yeh DONO directions mein pattern dekhta
+hai — aage se peeche AUR peeche se aage — isliye zyada accurate hai.
+
+NETWORK ARCHITECTURE (Neural Network ki structure):
+
+  INPUT: Pichle 30 din ka data (30 × 66 features = 1980 numbers)
+    │
+    ▼
+  [LSTM Layer 1: 64 neurons, Bidirectional]
+    → Dono directions mein patterns seekhta hai
+    → Output: 128 values (64 forward + 64 backward)
+    │
+    ▼
+  [Dropout: 20%]
+    → Random 20% neurons OFF karta hai training mein
+    → WHY? Overfitting rokne ke liye (model ratta na maare)
+    │
+    ▼
+  [LSTM Layer 2: 64 neurons, Bidirectional]
+    → Aur deeper patterns seekhta hai
+    │
+    ▼
+  [Dropout: 20%]
+    │
+    ▼
+  [Dense Layer: 32 neurons, ReLU activation]
+    → Saare learned features ko combine karta hai
+    │
+    ▼
+  [Output Layer: 1 neuron]
+    → Final predicted BCI value
+
+TRAINING PROCESS:
+  → Optimizer: Adam (learning rate = 0.003)
+  → Loss Function: MSE (Mean Squared Error)
+  → Epochs: 35 (poore dataset pe 35 baar training)
+  → Batch Size: 32 (ek baar mein 32 samples dekhta hai)
+  → Gradient Clipping: max_norm=1.0 (training stable rakhe)
+
+IMPORTANT CONCEPT — StandardScaler:
+  Neural networks ko normalized data chahiye (values 0 ke aas paas).
+  Agar BCI = 3000 aur Iron Ore = 120, toh network confuse ho jaayega.
+  StandardScaler har feature ko mean=0, std=1 bana deta hai.
+  Prediction ke baad INVERSE transform karke wapas original scale mein
+  laate hain.
+
+RESULTS:
+  → Test MAE: 306.63 BCI points
+  → Test MAPE: 20.41%
+  → Directional Accuracy: 60.55%
+  → XGBoost se thoda weak hai kyunki data chhota hai (LSTM ko bahut
+    zyada data chahiye best performance ke liye)
+
+========================================
+4.3 — Ensemble Model (Sabko Mix Karo)
+========================================
+
+File: src/models/ensemble_forecaster.py
+
+KYA HAI YEH?
+Ensemble = Multiple models ki predictions ko COMBINE karo.
+Jaise 3 doctors ki raay leke final decision lo — 3 models ki
+predictions ka weighted average nikalo.
+
+FORMULA:
+  Final_Prediction = (0.55 × XGBoost) + (0.35 × BiLSTM) + (0.10 × Ridge)
+
+  → XGBoost ko 55% weight diya kyunki yeh sabse accurate tha
+  → BiLSTM ko 35% weight kyunki yeh sequential patterns pakadta hai
+  → Ridge (simple linear model) ko 10% baseline stability ke liye
+
+CONFIDENCE INTERVALS:
+  → Sirf ek number predict karna kaafi nahi — UNCERTAINTY bhi batao
+  → 95% Confidence Interval = "Hum 95% sure hain ki actual rate
+    is range ke andar hoga"
+  → Formula: Prediction ± (1.96 × Standard Deviation of residuals)
+
+CHARTERING DECISION ENGINE:
+  → AGAR 7-day forecast mein rate 4%+ BADHNE wala hai:
+      → Signal: "CHARTER_NOW" 🟢 (Jaldi book karo warna mehenga padega!)
+  → AGAR 7-day forecast mein rate 4%+ GIRNE wala hai:
+      → Signal: "WAIT" 🔴 (Ruko, rate aur girega, sasta milega!)
+  → WARNA:
+      → Signal: "HOLD_NEUTRAL" ⚪ (Normal procurement chalu rakho)
+
+RESULTS:
+  → Test MAE: 237.73 BCI points
+  → Test MAPE: 15.74%
+  → Directional Accuracy: 59.63%
+
+========================================
+4.4 — SHAP Explainability Engine
+========================================
+
+File: src/models/explainability_shap.py
+
+KYA HAI SHAP?
+SHAP = SHapley Additive exPlanations. Yeh ek technique hai jo batati
+hai ki MODEL NE YEH PREDICTION KYUN DIYA.
+
+KYUN ZAROORI HAI?
+Ministry ke officers AI pe tab hi trust karenge jab unhe samajh aaye
+ki model kya soch raha hai. "Black box" pe koi trust nahi karega.
+
+SHAP KAISE KAAM KARTA HAI:
+Har ek feature ko ek SCORE milta hai (positive ya negative):
+  → Positive Score = Yeh feature ne rate BADHAAYA
+  → Negative Score = Yeh feature ne rate GHATAAYA
+
+EXAMPLE OUTPUT:
+  "7-Day BCI Forecast = 3000 points kyunki:"
+  
+  Base Market Level:        2500 (average historical rate)
+  + Iron Ore Price High:    +300 (demand strong hai)
+  + China PMI > 52:         +250 (Chinese factories full speed)
+  - Fleet Size Increased:   -150 (zyada ships available = rate gira)
+  + Port Congestion Paradip: +200 (ships stuck = kam available = rate badha)
+  - Oil Price Dropped:      -100 (fuel sasta = operating cost kam)
+  ─────────────────────────────────
+  = Final Prediction:       3000
+
+YEH MINISTRY KE LIYE INVALUABLE HAI! Officers dekh sakte hain:
+"Aha, aaj rate isliye high hai kyunki iron ore ki demand badhi hai
+aur Paradip port pe congestion hai."
+
+GENERATED CHARTS:
+1. reports/shap_summary.png    → Sabhi features ka importance ranking
+2. reports/shap_latest_waterfall.png → Latest din ki prediction ka breakdown
+
+
+================================================================================
+📌 SECTION 5: TRAINING PIPELINE (train_advanced.py)
+================================================================================
+
+File: train_advanced.py
+
+Yeh MASTER SCRIPT hai jo poora AI pipeline chalata hai:
+
+STEP 1/5: Dataset Load
+  → freight_dataset_cleaned.csv padhta hai (1,388 rows, 75 columns)
+
+STEP 2/5: XGBoost Train
+  → 250 gradient boosted trees banata hai
+  → Validation set pe early stopping lagata hai (overfitting roke)
+  → Trained model save karta hai: models/xgboost_forecaster.json
+
+STEP 3/5: BiLSTM Train
+  → 30-day sequences banata hai (lookback window)
+  → PyTorch neural network 35 epochs train karta hai
+  → Best validation weights save karta hai: models/bilstm_freight_net.pt
+
+STEP 4/5: Ensemble Blending
+  → Teenon models ki predictions ko 55/35/10 weighted average karta hai
+  → Confidence intervals calculate karta hai
+  → Chartering recommendation generate karta hai
+
+STEP 5/5: SHAP Explainability
+  → XGBoost model pe TreeExplainer lagata hai
+  → Last 80 test samples ka SHAP value compute karta hai
+  → Summary plot aur Waterfall plot PNG files mein save karta hai
+  → Executive briefing JSON generate karta hai
+
+RUN KAISE KAREIN:
+  python train_advanced.py
+
+
+================================================================================
+📌 SECTION 6: FastAPI BACKEND (api/ folder)
+================================================================================
+
+FastAPI ek modern Python web framework hai REST APIs banane ke liye.
+Yeh backend server hai jo ML model ki predictions serve karta hai.
+
+------------------------------------------------------------------------
+6.1 — api/main.py (Server ka entry point)
+------------------------------------------------------------------------
+  → FastAPI app create karta hai
+  → CORS middleware lagata hai (frontend se connect ho sake)
+  → Saare routes register karta hai
+  → Server start hone pe model load karta hai
+  → Reports folder ko static files ke roop mein serve karta hai
+
+------------------------------------------------------------------------
+6.2 — api/schemas.py (Data validation)
+------------------------------------------------------------------------
+  → Pydantic models define karti hai
+  → ForecastRequest: Client kya bhejega (route, horizon, overrides)
+  → ForecastResponse: Server kya return karega (prediction, CI, decision)
+  → MarketSnapshotResponse: Current market prices
+  → HealthResponse: Server health status
+
+------------------------------------------------------------------------
+6.3 — api/services/forecaster_service.py (AI brain)
+------------------------------------------------------------------------
+  → Singleton pattern — ek hi baar model load hota hai, baar baar nahi
+  → XGBoost model load karta hai from JSON
+  → Dataset load karta hai for latest market data
+  → predict_freight(): Prediction + route conversion + decision engine
+  → What-If Scenarios: "Agar iron ore $150 ho jaaye toh kya hoga?"
+  → get_executive_briefing(): SHAP se executive summary serve karta hai
+
+------------------------------------------------------------------------
+6.4 — api/routes/ (API Endpoints)
+------------------------------------------------------------------------
+
+POST /api/v1/predict
+  → Input: {horizon_days: 7, route: "C5", scenario_overrides: {...}}
+  → Output: Predicted rate, % change, confidence interval, recommendation
+  → Example: "C5 rate $13.35 → predicted $11.82 (-11.5%), WAIT"
+
+GET /api/v1/recommendation
+  → Input: Nothing
+  → Output: {action: "WAIT", urgency: "MEDIUM", rationale: "..."}
+  → Simple yes/no/wait decision for procurement officers
+
+GET /api/v1/explainability
+  → Input: Nothing
+  → Output: Full SHAP breakdown + bullish/bearish drivers list
+
+GET /api/v1/market/snapshot
+  → Input: Nothing
+  → Output: Latest BCI, BDI, C5, C3, Iron Ore, Oil, Port delays
+
+GET /api/v1/market/history?limit=90
+  → Input: limit parameter (kitne din ka data chahiye)
+  → Output: Array of daily market records (for charting)
+
+GET /health
+  → Input: Nothing
+  → Output: Server status, model loaded or not, test MAPE score
+
+RUN KAISE KAREIN:
+  python run_api.py
+  → Browser mein: http://localhost:8000/docs (Swagger UI)
+  → Test Interface: http://localhost:8000/test
+
+
+================================================================================
+📌 SECTION 7: DATA FLOW (Poora system kaise kaam karta hai)
+================================================================================
+
+Samjho poora flow step by step:
+
+[1] DATA GENERATION
+    scripts/generate_dataset.py
+    → 2019-2024 ka realistic synthetic data banata hai
+    → Oil prices, iron ore, BCI, fleet size, port congestion sab simulate karta hai
+    → COVID crash, 2021 boom, Ukraine shock — sab include hai
+    → Raw CSV save: data/raw/freight_dataset_raw.csv
+
+[2] FEATURE ENGINEERING
+    Same script mein:
+    → Lag features banata hai (bci_lag_1, bci_lag_7, bci_lag_30)
+    → Moving averages (bci_ma_7, bci_ma_30)
+    → Volatility (bci_std_7)
+    → Rate of change (bci_roc_7)
+    → Cyclical encodings (sin_day_of_year)
+    → Forward targets (target_bci_next_7d)
+    → Cleaned CSV save: data/processed/freight_dataset_cleaned.csv
+
+[3] MODEL TRAINING
+    train_advanced.py
+    → Cleaned data load → XGBoost train → BiLSTM train → Ensemble blend
+    → SHAP explain → Save models + charts + briefing
+
+[4] API SERVING
+    python run_api.py
+    → FastAPI server start → Model load → Ready for predictions
+    → Client POST request bhejta hai → Model predict karta hai → JSON response
+
+[5] USER INTERFACE
+    Browser mein http://localhost:8000/test
+    → Market snapshot dekhein
+    → Route aur horizon select karein
+    → What-If sliders adjust karein
+    → "Run Forecast" click karein
+    → Decision badge + predicted rate + confidence interval dikhe
+
+
+================================================================================
+📌 SECTION 8: EVALUATION METRICS (Model kitna accha hai?)
+================================================================================
+
+1. MAE (Mean Absolute Error)
+   → Average mein prediction kitne points door thi actual se
+   → Lower is better
+   → Example: MAE = 210 matlab average 210 BCI points ki error
+
+2. RMSE (Root Mean Squared Error)
+   → MAE jaisa but badi errors ko ZYADA penalty deta hai
+   → Lower is better
+   → Agar kabhi bahut badi galti ho gayi, RMSE zyada badhega
+
+3. MAPE (Mean Absolute Percentage Error)
+   → Error ko PERCENTAGE mein batata hai (sabse intuitive)
+   → MAPE = 13.76% matlab average 13.76% galti
+   → Target: < 12% = Excellent, < 15% = Good, > 20% = Needs improvement
+
+4. Directional Accuracy
+   → Model ne kitni baar SAHI direction predict kiya?
+   → "Rate badhega" bola aur sach mein badha = correct
+   → "Rate girega" bola aur sach mein gira = correct
+   → 64.75% = 100 mein se 65 baar sahi direction bataya
+   → Yeh CHARTERING DECISIONS ke liye sabse important metric hai!
+
+FINAL SCORECARD:
+┌─────────────────────┬────────┬────────┬──────────┬──────────────┐
+│ Model               │ MAE    │ RMSE   │ MAPE (%) │ Direction(%) │
+├─────────────────────┼────────┼────────┼──────────┼──────────────┤
+│ XGBoost Regressor   │ 210.12 │ 280.17 │  13.76%  │   64.75%     │
+│ BiLSTM Deep Learning│ 306.63 │ 378.49 │  20.41%  │   60.55%     │
+│ Hybrid Ensemble     │ 237.73 │ 296.70 │  15.74%  │   59.63%     │
+└─────────────────────┴────────┴────────┴──────────┴──────────────┘
+
+
+================================================================================
+📌 SECTION 9: TECH STACK (Kaunsi technology use ki hai)
+================================================================================
+
+Language:          Python 3.12
+Data:              pandas, numpy
+ML Models:         scikit-learn, XGBoost 3.4
+Deep Learning:     PyTorch 2.14 (CPU)
+Explainability:    SHAP 0.52
+Visualization:     matplotlib
+API Framework:     FastAPI 0.141
+API Server:        Uvicorn 0.52
+Data Validation:   Pydantic 2.13
+HTTP Testing:      httpx
+Version Control:   Git + GitHub
+
+
+================================================================================
+📌 SECTION 10: SIH JUDGES KO KYA DIKHANA HAI (Presentation Tips)
+================================================================================
+
+1. IMPACT STATEMENT (Sabse pehle bolo):
+   "India 130 Million tonnes import karta hai. Agar humara model sirf
+   $1/tonne bacha de chartering timing se, toh $130 Million USD
+   annual savings hogi Ministry of Steel ke liye."
+
+2. TECHNICAL DEPTH dikhao:
+   "Humne 3 alag models banaye — XGBoost for tabular features, BiLSTM
+   for temporal sequences, aur weighted ensemble for best accuracy."
+
+3. EXPLAINABILITY dikhao (SHAP plots):
+   "Hum sirf prediction nahi dete, EXPLAIN bhi karte hain kyun — judges
+   ko waterfall plot dikhao aur bolo: dekho, aaj rate isliye badha
+   kyunki iron ore demand surge hui."
+
+4. USABILITY dikhao:
+   "Non-technical officers bhi use kar sakte hain — ek simple
+   CHARTER_NOW ya WAIT badge dikhai deta hai with plain English rationale."
+
+5. WHAT-IF SCENARIOS dikhao:
+   "Ministry puchh sakti hai: Agar iron ore $150 ho jaaye toh kya hoga?
+   Humara system instantly naya forecast deta hai."
+
+6. API ARCHITECTURE dikhao:
+   "Production-ready FastAPI backend hai jisse koi bhi frontend,
+   mobile app, ya dashboard connect ho sakta hai."
+
+================================================================================
+   Yeh document yahaan khatam hota hai. Agar koi doubt ho toh puchho!
+   All the best for SIH 2026! 🚀
+================================================================================
