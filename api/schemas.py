@@ -85,3 +85,22 @@ class HealthResponse(BaseModel):
     model_loaded: bool
     models_available: List[str]
     model_test_mape: str
+
+class ChatMessage(BaseModel):
+    role: str = Field(..., description="'user' or 'assistant'")
+    content: str = Field(..., description="Text content of the message")
+
+class ChatRequest(BaseModel):
+    message: str = Field(..., description="User question or query")
+    history: Optional[List[ChatMessage]] = Field(default_factory=list, description="Optional previous chat turns")
+    cargo_tonnes: Optional[float] = Field(170000.0, description="Optional cargo size in metric tonnes (default standard Capesize 170k DWT)")
+    route: Optional[str] = Field("C5", description="Route context ('C5', 'C3', or 'BCI')")
+
+class ChatResponse(BaseModel):
+    reply: str
+    category: str = Field(..., description="'glossary', 'decision_support', 'market_insight', or 'general'")
+    action_signal: Optional[str] = Field(None, description="Optional chartering signal if applicable ('CHARTER_NOW', 'WAIT', 'HOLD_NEUTRAL')")
+    estimated_savings_usd: Optional[float] = Field(None, description="Estimated total voyage savings in USD if applicable")
+    estimated_savings_inr_cr: Optional[float] = Field(None, description="Estimated savings in Indian Crores INR if applicable")
+    follow_up_suggestions: List[str] = Field(default_factory=list, description="Suggested follow-up questions for the user")
+

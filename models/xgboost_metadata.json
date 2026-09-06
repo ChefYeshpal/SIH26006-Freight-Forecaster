@@ -71,10 +71,23 @@
   "metrics": {
     "model_type": "XGBoost",
     "target": "target_bci_next_7d",
-    "mae": 210.12,
-    "rmse": 280.17,
-    "mape": 13.76,
+    "mae": 161.6,
+    "rmse": 197.38,
+    "mape": 10.67,
     "directional_accuracy": 64.75,
-    "test_samples": 139
+    "test_samples": 139,
+    "cross_validation": {
+      "n_splits": 5,
+      "cv_mae_mean": 965.33,
+      "cv_mae_std": 600.38,
+      "cv_mape_mean": 35.45,
+      "fold_maes": [
+        959.11,
+        2078.1,
+        918.19,
+        417.69,
+        453.58
+      ]
+    }
   }
 }

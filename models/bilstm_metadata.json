@@ -68,17 +68,17 @@
     "bci_to_bdi_ratio"
   ],
   "target_col": "target_bci_next_7d",
-  "lookback": 30,
-  "hidden_dim": 64,
-  "num_layers": 2,
+  "lookback": 20,
+  "hidden_dim": 32,
+  "num_layers": 1,
   "metrics": {
     "model_type": "BiLSTM_DeepLearning",
     "target": "target_bci_next_7d",
-    "lookback_days": 30,
-    "mae": 306.63,
-    "rmse": 378.49,
-    "mape": 20.41,
-    "directional_accuracy": 60.55,
-    "test_samples": 109
+    "lookback_days": 20,
+    "mae": 383.1,
+    "rmse": 446.52,
+    "mape": 28.36,
+    "directional_accuracy": 38.13,
+    "test_samples": 139
   }
 }

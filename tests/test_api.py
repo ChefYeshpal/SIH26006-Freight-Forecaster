@@ -15,12 +15,18 @@ from api.main import app
 client = TestClient(app)
 
 def test_root_endpoint():
-    response = client.get("/")
-    assert response.status_code == 200
-    data = response.json()
+    # Test HTML dashboard on root
+    res_html = client.get("/")
+    assert res_html.status_code == 200
+    assert "National Maritime Freight Intelligence System" in res_html.text
+    # Test JSON info endpoint
+    res_info = client.get("/api/info")
+    assert res_info.status_code == 200
+    data = res_info.json()
     assert "documentation" in data
     assert data["beneficiary"] == "Ministry of Steel, Government of India"
-    print("[PASS] GET / returned 200 OK")
+    print("[PASS] GET / (Dashboard HTML) & /api/info (JSON) returned 200 OK")
+
 
 def test_health_endpoint():
     response = client.get("/health")
@@ -94,6 +100,29 @@ def test_predict_what_if_scenario():
     assert data["status"] == "success"
     print(f"[PASS] POST /api/v1/predict (What-If Scenario) -> Predicted BCI: {data['predicted_rate']} (Recommendation: {data['recommendation']['action']})")
 
+def test_chat_endpoints():
+    # Test Glossary Term Explainer
+    res_glossary = client.post("/api/v1/chat", json={"message": "What is Route C5?"})
+    assert res_glossary.status_code == 200
+    data_g = res_glossary.json()
+    assert data_g["category"] == "glossary"
+    assert "Route C5" in data_g["reply"]
+    print(f"[PASS] POST /api/v1/chat (Glossary) -> Category: {data_g['category']}")
+
+    # Test Decision Support
+    res_dec = client.post("/api/v1/chat", json={"message": "Should I charter a Capesize now or wait 7 days?", "route": "C5", "cargo_tonnes": 170000})
+    assert res_dec.status_code == 200
+    data_d = res_dec.json()
+    assert data_d["category"] == "decision_support"
+    assert data_d["action_signal"] in ["CHARTER_NOW", "WAIT", "HOLD_NEUTRAL"]
+    print(f"[PASS] POST /api/v1/chat (Decision Support) -> Signal: {data_d['action_signal']}")
+
+    # Test Suggestions
+    res_sug = client.get("/api/v1/chat/suggestions")
+    assert res_sug.status_code == 200
+    assert len(res_sug.json()["categories"]) >= 3
+    print(f"[PASS] GET /api/v1/chat/suggestions -> Categories: {len(res_sug.json()['categories'])}")
+
 if __name__ == "__main__":
     print("=" * 60)
     print("🧪 RUNNING FASTAPI ENDPOINT INTEGRATION TESTS")
@@ -106,6 +135,8 @@ if __name__ == "__main__":
     test_shap_explainability()
     test_predict_c5_standard()
     test_predict_what_if_scenario()
+    test_chat_endpoints()
     print("=" * 60)
     print("✅ ALL FASTAPI ENDPOINTS PASSED WITH 100% SUCCESS!")
     print("=" * 60)
+

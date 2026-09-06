@@ -1,6 +1,7 @@
 """
 SIH26006: Master Advanced AI/ML Pipeline
-Trains XGBoost + BiLSTM + Ensemble + Generates SHAP Explainability Reports.
+Trains XGBoost (with 5-Fold Walk-Forward Cross-Validation) + Sequence Neural Forecaster + Ridge Baseline
++ Dynamic Error-Minimizing Stacking Ensemble + SHAP Explainability Reports.
 """
 
 import os
@@ -22,6 +23,7 @@ def run_pipeline():
     print("=" * 75)
     print("🚢 SIH26006: INTELLIGENT FREIGHT FORECASTING AI PIPELINE")
     print("   Bulk Cargo Procurement & Vessel Chartering (East Coast of India)")
+    print("   Architecture: XGBoost (Walk-Forward CV) + BiLSTM + Ridge + Optimal Blending")
     print("=" * 75)
 
     data_path = os.path.join("data", "processed", "freight_dataset_cleaned.csv")
@@ -31,41 +33,59 @@ def run_pipeline():
     df = pd.read_csv(data_path)
     print(f"\n[1/5] Loaded cleaned dataset: {df.shape[0]} rows, {df.shape[1]} columns.\n")
 
-    # 1. Train XGBoost Model
-    print("[2/5] Training Gradient Boosted Trees (XGBoost)...")
-    xgb_forecaster = XGBoostFreightForecaster(target_col="target_bci_next_7d", n_estimators=250, max_depth=6)
-    xgb_metrics, xgb_preds, y_test, test_df = xgb_forecaster.train(df)
+    # 1. Train XGBoost Model with 5-Fold Time-Series Cross-Validation
+    print("[2/5] Training Gradient Boosted Trees (XGBoost) with 5-Fold Time-Series CV...")
+    xgb_forecaster = XGBoostFreightForecaster(
+        target_col="target_bci_next_7d",
+        n_estimators=200,
+        max_depth=4,
+        learning_rate=0.04
+    )
+    xgb_metrics, xgb_preds, y_test, test_df = xgb_forecaster.train(df, run_cv=True)
     xgb_forecaster.save()
 
-    # 2. Train Deep Learning BiLSTM Model
-    print("\n[3/5] Training Recurrent Neural Network (BiLSTM Deep Learning)...")
-    lstm_forecaster = LSTMFreightForecaster(target_col="target_bci_next_7d", lookback=30, hidden_dim=64, epochs=35)
-    lstm_metrics, lstm_preds, lstm_y_true, eval_df = lstm_forecaster.train(df)
+    # Get validation data for ensemble weight optimization
+    (X_train, y_train), (X_val, y_val), (X_test, _), (_, val_df, _) = xgb_forecaster.prepare_data(df)
+    xgb_val_preds = xgb_forecaster.predict(X_val)
+
+    # 2. Train Deep Learning Recurrent Model with continuous lookback padding
+    print("\n[3/5] Training Sequential Neural Network (BiLSTM Deep Learning)...")
+    lstm_forecaster = LSTMFreightForecaster(
+        target_col="target_bci_next_7d",
+        lookback=20,
+        hidden_dim=32,
+        num_layers=1,
+        lr=0.003,
+        epochs=35
+    )
+    lstm_metrics, lstm_preds, lstm_y_true, eval_df, lstm_val_preds, lstm_val_y = lstm_forecaster.train(df)
     lstm_forecaster.save()
 
-    # Align predictions (LSTM uses lookback=30, so evaluate on common sequence overlap)
-    n_common = len(lstm_preds)
-    xgb_aligned_preds = xgb_preds[-n_common:]
-    actual_aligned_y = lstm_y_true
-    common_eval_df = eval_df.tail(n_common).reset_index(drop=True)
-    current_bci = common_eval_df["bci_index"].values
-
     # 3. Ridge Linear Baseline
-    (X_train, y_train), _, (X_test, _), _ = xgb_forecaster.prepare_data(df)
     ridge = Ridge(alpha=100.0)
     ridge.fit(X_train, y_train)
-    ridge_preds = ridge.predict(X_test)[-n_common:]
+    ridge_val_preds = ridge.predict(X_val)
+    ridge_preds = ridge.predict(X_test)
 
-    # 4. Hybrid Ensemble Blending
-    print("\n[4/5] Blending Models into Weighted Hybrid Ensemble...")
-    ensemble = HybridEnsembleForecaster(weights={"xgboost": 0.55, "lstm": 0.35, "ridge": 0.10})
-    preds_dict = {
-        "xgboost": xgb_aligned_preds,
+    # 4. Mathematically Optimal Hybrid Ensemble Blending
+    print("\n[4/5] Solving for Optimal Error-Minimizing Ensemble Blending Weights...")
+    ensemble = HybridEnsembleForecaster()
+
+    val_preds_dict = {
+        "xgboost": xgb_val_preds,
+        "lstm": lstm_val_preds,
+        "ridge": ridge_val_preds
+    }
+    opt_weights = ensemble.optimize_weights(val_preds_dict, y_val.values)
+
+    test_preds_dict = {
+        "xgboost": xgb_preds,
         "lstm": lstm_preds,
         "ridge": ridge_preds
     }
+    current_bci = test_df["bci_index"].values
     ensemble_preds, lower_bounds, upper_bounds, ensemble_metrics = ensemble.evaluate_ensemble(
-        preds_dict, actual_aligned_y, current_bci
+        test_preds_dict, y_test, current_bci
     )
 
     # 5. SHAP Model Explainability Engine
@@ -84,7 +104,7 @@ def run_pipeline():
     decision = ensemble.generate_procurement_decision(latest_current_bci, latest_forecast_bci)
 
     executive_briefing["procurement_decision"] = decision
-    executive_briefing["latest_date"] = str(common_eval_df["date"].iloc[-1])
+    executive_briefing["latest_date"] = str(test_df["date"].iloc[-1])
     executive_briefing["current_spot_bci"] = latest_current_bci
     executive_briefing["forecast_7d_bci"] = latest_forecast_bci
     executive_briefing["forecast_range_95pct"] = {
@@ -102,6 +122,7 @@ def run_pipeline():
             "bilstm": lstm_metrics,
             "ensemble": ensemble_metrics
         },
+        "optimal_weights": opt_weights,
         "latest_decision": decision,
         "reports": {
             "shap_summary_plot": summary_path,
@@ -116,22 +137,22 @@ def run_pipeline():
         json.dump(executive_briefing, f, indent=2)
 
     # Print Final Scorecard
-    print("\n" + "=" * 75)
+    print("\n" + "=" * 80)
     print("📊 SIH26006 MODEL EVALUATION SCORECARD (Test Set Comparison)")
-    print("=" * 75)
+    print("=" * 80)
     print(f"{'Model Architecture':25s} | {'MAE':8s} | {'RMSE':8s} | {'MAPE (%)':10s} | {'Dir Acc (%)':12s}")
-    print("-" * 75)
-    print(f"{'XGBoost Regressor':25s} | {xgb_metrics['mae']:8.2f} | {xgb_metrics['rmse']:8.2f} | {xgb_metrics['mape']:9.2f}% | {xgb_metrics['directional_accuracy']:10.2f}%")
+    print("-" * 80)
+    print(f"{'XGBoost (Walk-Forward CV)':25s} | {xgb_metrics['mae']:8.2f} | {xgb_metrics['rmse']:8.2f} | {xgb_metrics['mape']:9.2f}% | {xgb_metrics['directional_accuracy']:10.2f}%")
     print(f"{'BiLSTM Deep Learning':25s} | {lstm_metrics['mae']:8.2f} | {lstm_metrics['rmse']:8.2f} | {lstm_metrics['mape']:9.2f}% | {lstm_metrics['directional_accuracy']:10.2f}%")
-    print(f"{'Hybrid Ensemble (Best)':25s} | {ensemble_metrics['mae']:8.2f} | {ensemble_metrics['rmse']:8.2f} | {ensemble_metrics['mape']:9.2f}% | {ensemble_metrics['directional_accuracy']:10.2f}%")
-    print("=" * 75)
+    print(f"{'Hybrid Ensemble (Optimal)':25s} | {ensemble_metrics['mae']:8.2f} | {ensemble_metrics['rmse']:8.2f} | {ensemble_metrics['mape']:9.2f}% | {ensemble_metrics['directional_accuracy']:10.2f}%")
+    print("=" * 80)
 
     print("\n🎯 LATEST MINISTRY PROCUREMENT RECOMMENDATION:")
     print(f"Action:       [{decision['action']}] (Urgency: {decision['urgency']})")
     print(f"Spot BCI:     {latest_current_bci:.1f} -> 7-Day Forecast: {latest_forecast_bci:.1f} ({decision['expected_change_pct']:+.1f}%)")
     print(f"Confidence:   [{lower_bounds[-1]:.1f} to {upper_bounds[-1]:.1f}] (95% CI)")
     print(f"Rationale:    {decision['rationale']}")
-    print("=" * 75)
+    print("=" * 80)
 
 if __name__ == "__main__":
     run_pipeline()

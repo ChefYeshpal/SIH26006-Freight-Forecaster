@@ -1,6 +1,6 @@
 """
-Deep Learning BiLSTM Sequential Freight Forecasting Model for SIH26006
-Captures multi-week temporal dependencies and regime shifts using recurrent neural networks.
+Deep Learning Sequential Freight Forecasting Model for SIH26006
+Captures multi-week temporal dependencies using recurrent neural networks with full sequence continuity.
 """
 
 import os
@@ -25,8 +25,10 @@ class TimeSeriesDataset(Dataset):
         return self.X[idx], self.y[idx]
 
 class BiLSTMFreightNet(nn.Module):
-    def __init__(self, input_dim, hidden_dim=64, num_layers=2, dropout=0.2):
+    def __init__(self, input_dim, hidden_dim=32, num_layers=1, dropout=0.15):
         super().__init__()
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
         self.lstm = nn.LSTM(
             input_size=input_dim,
             hidden_size=hidden_dim,
@@ -48,7 +50,7 @@ class BiLSTMFreightNet(nn.Module):
         return self.fc2(out).squeeze(-1)
 
 class LSTMFreightForecaster:
-    def __init__(self, target_col="target_bci_next_7d", lookback=30, hidden_dim=64, num_layers=2, lr=0.003, epochs=45):
+    def __init__(self, target_col="target_bci_next_7d", lookback=20, hidden_dim=32, num_layers=1, lr=0.003, epochs=40):
         self.target_col = target_col
         self.lookback = lookback
         self.hidden_dim = hidden_dim
@@ -81,36 +83,44 @@ class LSTMFreightForecaster:
         train_end = int(n * train_ratio)
         val_end = int(n * (train_ratio + val_ratio))
 
-        # Split
+        # Split raw data
         train_raw = df.iloc[:train_end]
         val_raw = df.iloc[train_end:val_end]
         test_raw = df.iloc[val_end:]
 
-        # Scale features and target based on train data only
-        X_train_scaled = self.feature_scaler.fit_transform(train_raw[self.feature_names])
-        y_train_scaled = self.target_scaler.fit_transform(train_raw[[self.target_col]]).ravel()
+        # Scale features and target based on training data ONLY
+        self.feature_scaler.fit(train_raw[self.feature_names])
+        self.target_scaler.fit(train_raw[[self.target_col]])
 
-        X_val_scaled = self.feature_scaler.transform(val_raw[self.feature_names])
-        y_val_scaled = self.target_scaler.transform(val_raw[[self.target_col]]).ravel()
+        X_train_scaled = self.feature_scaler.transform(train_raw[self.feature_names])
+        y_train_scaled = self.target_scaler.transform(train_raw[[self.target_col]]).ravel()
 
-        X_test_scaled = self.feature_scaler.transform(test_raw[self.feature_names])
-        y_test_scaled = self.target_scaler.transform(test_raw[[self.target_col]]).ravel()
+        # Prepend lookback buffer to validation and test to evaluate full ranges
+        val_buffer = pd.concat([train_raw.iloc[-self.lookback:], val_raw], axis=0)
+        X_val_buf_scaled = self.feature_scaler.transform(val_buffer[self.feature_names])
+        y_val_buf_scaled = self.target_scaler.transform(val_buffer[[self.target_col]]).ravel()
 
-        # Build rolling 30-day sequences
+        test_buffer = pd.concat([val_raw.iloc[-self.lookback:], test_raw], axis=0)
+        X_test_buf_scaled = self.feature_scaler.transform(test_buffer[self.feature_names])
+        y_test_buf_scaled = self.target_scaler.transform(test_buffer[[self.target_col]]).ravel()
+
+        # Build rolling sequences
         X_train_seq, y_train_seq = self.create_sequences(X_train_scaled, y_train_scaled)
-        X_val_seq, y_val_seq = self.create_sequences(X_val_scaled, y_val_scaled)
-        X_test_seq, y_test_seq = self.create_sequences(X_test_scaled, y_test_scaled)
+        X_val_seq, y_val_seq = self.create_sequences(X_val_buf_scaled, y_val_buf_scaled)
+        X_test_seq, y_test_seq = self.create_sequences(X_test_buf_scaled, y_test_buf_scaled)
 
-        print(f"[LSTM] Created sequences (Lookback={self.lookback} days):")
+        print(f"[LSTM] Created rolling sequences (Lookback={self.lookback} days):")
         print(f"       Train: {X_train_seq.shape[0]} | Val: {X_val_seq.shape[0]} | Test: {X_test_seq.shape[0]}")
 
+        torch.manual_seed(42)
         train_loader = DataLoader(TimeSeriesDataset(X_train_seq, y_train_seq), batch_size=32, shuffle=True)
         val_loader = DataLoader(TimeSeriesDataset(X_val_seq, y_val_seq), batch_size=32, shuffle=False)
 
         input_dim = len(self.feature_names)
-        self.model = BiLSTMFreightNet(input_dim, self.hidden_dim, self.num_layers)
-        criterion = nn.MSELoss()
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr, weight_decay=1e-4)
+        self.model = BiLSTMFreightNet(input_dim, self.hidden_dim, self.num_layers, dropout=0.15)
+        criterion = nn.SmoothL1Loss()
+        optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.lr, weight_decay=1e-3)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.epochs)
 
         best_val_loss = float("inf")
         best_state = None
@@ -127,6 +137,7 @@ class LSTMFreightForecaster:
                 optimizer.step()
                 train_loss += loss.item() * len(bx)
             train_loss /= len(X_train_seq)
+            scheduler.step()
 
             self.model.eval()
             val_loss = 0.0
@@ -139,12 +150,12 @@ class LSTMFreightForecaster:
 
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
-                best_state = self.model.state_dict().copy()
+                best_state = {k: v.cpu().clone() for k, v in self.model.state_dict().items()}
 
         if best_state is not None:
             self.model.load_state_dict(best_state)
 
-        # Test evaluation
+        # Full Test evaluation (all 139 test days preserved)
         self.model.eval()
         with torch.no_grad():
             test_x_tensor = torch.tensor(X_test_seq, dtype=torch.float32)
@@ -159,11 +170,18 @@ class LSTMFreightForecaster:
         mape = mean_absolute_percentage_error(actual_test_y, test_preds) * 100
 
         # Evaluate directional accuracy
-        eval_df = test_raw.iloc[self.lookback:].reset_index(drop=True)
+        eval_df = test_raw.reset_index(drop=True)
         current_bci = eval_df["bci_index"].values
         actual_dir = np.sign(actual_test_y - current_bci)
         pred_dir = np.sign(test_preds - current_bci)
         dir_acc = np.mean(actual_dir == pred_dir) * 100
+
+        # Validation set predictions for ensemble weighting
+        with torch.no_grad():
+            val_x_tensor = torch.tensor(X_val_seq, dtype=torch.float32)
+            scaled_val_preds = self.model(val_x_tensor).numpy()
+        val_preds = self.target_scaler.inverse_transform(scaled_val_preds.reshape(-1, 1)).ravel()
+        actual_val_y = self.target_scaler.inverse_transform(y_val_seq.reshape(-1, 1)).ravel()
 
         self.metrics = {
             "model_type": "BiLSTM_DeepLearning",
@@ -177,7 +195,7 @@ class LSTMFreightForecaster:
         }
 
         print(f"[LSTM Results] Test MAE: {mae:.2f} | RMSE: {rmse:.2f} | MAPE: {mape:.2f}% | Directional Acc: {dir_acc:.2f}%")
-        return self.metrics, test_preds, actual_test_y, eval_df
+        return self.metrics, test_preds, actual_test_y, eval_df, val_preds, actual_val_y
 
     def save(self, output_dir="models"):
         os.makedirs(output_dir, exist_ok=True)
@@ -200,6 +218,6 @@ class LSTMFreightForecaster:
 if __name__ == "__main__":
     data_path = os.path.join("data", "processed", "freight_dataset_cleaned.csv")
     df = pd.read_csv(data_path)
-    lstm_forecaster = LSTM出FreightForecaster()
+    lstm_forecaster = LSTMFreightForecaster()
     lstm_forecaster.train(df)
     lstm_forecaster.save()

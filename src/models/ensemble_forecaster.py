@@ -1,26 +1,63 @@
 """
 Weighted Hybrid Ensemble & Chartering Decision Engine for SIH26006
-Combines XGBoost, BiLSTM, and Ridge with uncertainty estimation and automated chartering recommendations.
+Combines XGBoost, BiLSTM, and Ridge with dynamic error-minimizing weight optimization and uncertainty estimation.
 """
 
 import os
 import json
 import numpy as np
 import pandas as pd
+from scipy.optimize import minimize
 from sklearn.metrics import mean_absolute_error, root_mean_squared_error, mean_absolute_percentage_error
 
 class HybridEnsembleForecaster:
     def __init__(self, weights=None):
-        # Default balanced weights: 55% XGBoost, 35% BiLSTM, 10% Ridge
-        self.weights = weights or {"xgboost": 0.55, "lstm": 0.35, "ridge": 0.10}
+        # Default starting weights
+        self.weights = weights or {"xgboost": 0.60, "ridge": 0.30, "lstm": 0.10}
         self.metrics = {}
+
+    def optimize_weights(self, val_preds_dict, y_val):
+        """
+        Mathematically solves for the optimal non-negative ensemble weights (summing to 1.0)
+        that minimize Mean Absolute Error (MAE) on validation predictions.
+        Prevents poor models from dragging down overall accuracy.
+        """
+        model_names = list(val_preds_dict.keys())
+        preds_matrix = np.column_stack([val_preds_dict[name] for name in model_names])
+        n_models = len(model_names)
+
+        def objective(w):
+            blended = np.dot(preds_matrix, w)
+            return mean_absolute_error(y_val, blended)
+
+        init_w = np.ones(n_models) / n_models
+        bounds = [(0.0, 1.0) for _ in range(n_models)]
+        constraints = {"type": "eq", "fun": lambda w: np.sum(w) - 1.0}
+
+        res = minimize(objective, init_w, method="SLSQP", bounds=bounds, constraints=constraints)
+
+        if res.success:
+            opt_weights = {name: round(float(w), 4) for name, w in zip(model_names, res.x)}
+            self.weights = opt_weights
+            print(f"[Ensemble] Mathematically optimized weights: {self.weights}")
+        else:
+            print("[Ensemble] Optimization failed, using inverse-MAE fallback weighting.")
+            maes = [mean_absolute_error(y_val, val_preds_dict[name]) for name in model_names]
+            inv_maes = [1.0 / (m + 1e-5) for m in maes]
+            total_inv = sum(inv_maes)
+            self.weights = {name: round(float(w / total_inv), 4) for name, w in zip(model_names, inv_maes)}
+
+        return self.weights
 
     def blend_predictions(self, preds_dict):
         """
         Blends predictions using normalized ensemble weights.
         """
-        total_w = sum(self.weights[k] for k in preds_dict if k in self.weights)
-        combined = np.zeros(len(next(iter(preds_dict.values()))))
+        total_w = sum(self.weights.get(k, 0.0) for k in preds_dict)
+        if total_w == 0:
+            total_w = 1.0
+        n_samples = len(next(iter(preds_dict.values())))
+        combined = np.zeros(n_samples)
         for model_name, preds in preds_dict.items():
             w = self.weights.get(model_name, 0.0) / total_w
             combined += w * np.array(preds)
@@ -99,9 +136,10 @@ class HybridEnsembleForecaster:
         print(f"============================================================")
         print(f"Ensemble Test MAE:             {mae:.2f} BCI points")
         print(f"Ensemble Test RMSE:            {rmse:.2f} BCI points")
-        print(f"Ensemble Test MAPE:            {mape:.2f}% (Target < 12%)")
-        print(f"Ensemble Directional Accuracy: {dir_acc:.2f}% (Target > 65%)")
-        print(f"Residuals Volatility (Std):    {residuals_std:.2f} points")
+        print(f"Ensemble Test MAPE:            {mape:.2f}%")
+        print(f"Ensemble Directional Accuracy: {dir_acc:.2f}%")
+        print(f"Residuals Std Dev:             {residuals_std:.2f} BCI points")
+        print(f"Ensemble Weights:              {self.weights}")
         print(f"============================================================\n")
 
         return ensemble_preds, lower, upper, self.metrics

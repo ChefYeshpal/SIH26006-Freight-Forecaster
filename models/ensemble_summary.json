@@ -3,42 +3,60 @@
     "xgboost": {
       "model_type": "XGBoost",
       "target": "target_bci_next_7d",
-      "mae": 210.12,
-      "rmse": 280.17,
-      "mape": 13.76,
+      "mae": 161.6,
+      "rmse": 197.38,
+      "mape": 10.67,
       "directional_accuracy": 64.75,
-      "test_samples": 139
+      "test_samples": 139,
+      "cross_validation": {
+        "n_splits": 5,
+        "cv_mae_mean": 965.33,
+        "cv_mae_std": 600.38,
+        "cv_mape_mean": 35.45,
+        "fold_maes": [
+          959.11,
+          2078.1,
+          918.19,
+          417.69,
+          453.58
+        ]
+      }
     },
     "bilstm": {
       "model_type": "BiLSTM_DeepLearning",
       "target": "target_bci_next_7d",
-      "lookback_days": 30,
-      "mae": 306.63,
-      "rmse": 378.49,
-      "mape": 20.41,
-      "directional_accuracy": 60.55,
-      "test_samples": 109
+      "lookback_days": 20,
+      "mae": 383.1,
+      "rmse": 446.52,
+      "mape": 28.36,
+      "directional_accuracy": 38.13,
+      "test_samples": 139
     },
     "ensemble": {
       "model_type": "Hybrid_Ensemble",
       "weights": {
-        "xgboost": 0.55,
-        "lstm": 0.35,
-        "ridge": 0.1
+        "xgboost": 0.0204,
+        "lstm": 0.0099,
+        "ridge": 0.9696
       },
-      "mae": 237.73,
-      "rmse": 296.7,
-      "mape": 15.74,
-      "directional_accuracy": 59.63,
-      "residuals_std": 254.35
+      "mae": 156.04,
+      "rmse": 194.56,
+      "mape": 9.43,
+      "directional_accuracy": 67.63,
+      "residuals_std": 173.8
     }
+  },
+  "optimal_weights": {
+    "xgboost": 0.0204,
+    "lstm": 0.0099,
+    "ridge": 0.9696
   },
   "latest_decision": {
     "action": "WAIT",
     "urgency": "MEDIUM",
     "color": "red",
-    "rationale": "Freight rates projected to soften by -10.1% over the next 7 days. Delaying tender offers cost savings for bulk procurement.",
-    "expected_change_pct": -10.12
+    "rationale": "Freight rates projected to soften by -9.7% over the next 7 days. Delaying tender offers cost savings for bulk procurement.",
+    "expected_change_pct": -9.7
   },
   "reports": {
     "shap_summary_plot": "reports\\shap_summary.png",
