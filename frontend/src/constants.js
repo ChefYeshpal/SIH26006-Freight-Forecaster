@@ -72,7 +72,7 @@ export const NAV_ITEMS = [
   { id: 'settings', label: 'Settings', icon: 'settings' },
 ]
 
-export const API_BASE = 'http://localhost:8000'
+export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
 
 // ========== Notification Defaults ==========
 export const NOTIFICATIONS = [
