@@ -3,6 +3,7 @@ Main FastAPI Application for SIH26006 Freight Forecasting System
 """
 
 import os
+import json
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -72,7 +73,9 @@ def api_info():
         }
     }
 
-
+@app.get("/health", response_model=HealthResponse, tags=["System"])
+def health_check():
+    service = ForecasterService()
     mape_str = "9.43%"
     summary_file = os.path.join("models", "ensemble_summary.json")
     if os.path.exists(summary_file):

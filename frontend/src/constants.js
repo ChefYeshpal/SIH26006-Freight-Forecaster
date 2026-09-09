@@ -41,3 +41,63 @@ export const FEATURE_LABELS = {
   "is_chinese_new_year": "Chinese New Year Period",
   "is_monsoon_season": "Indian Monsoon Season",
 }
+
+// ========== Authentication & User Configuration ==========
+export const DEMO_CREDENTIALS = {
+  email: 'admin@freight.gov.in',
+  password: 'SIH26006',
+}
+
+export const DEFAULT_USER_PROFILE = {
+  name: 'Procurement Officer',
+  email: 'admin@freight.gov.in',
+  role: 'Senior Analyst',
+  department: 'Ministry of Steel',
+  avatarInitials: 'PO',
+}
+
+// ========== Theme & Animation Configuration ==========
+export const ANIMATION_DURATION = {
+  fast: 200,
+  normal: 400,
+  slow: 600,
+  countUp: 2000,
+}
+
+export const NAV_ITEMS = [
+  { id: 'landing', label: 'Dashboard', icon: 'compass' },
+  { id: 'forecast', label: 'Forecast Engine', icon: 'ship' },
+  { id: 'explainability', label: 'SHAP Analysis', icon: 'cpu' },
+  { id: 'market', label: 'Market Intel', icon: 'barchart' },
+  { id: 'settings', label: 'Settings', icon: 'settings' },
+]
+
+export const API_BASE = 'http://localhost:8000'
+
+// ========== Notification Defaults ==========
+export const NOTIFICATIONS = [
+  {
+    id: 1,
+    title: 'BCI Surge Alert',
+    message: 'Baltic Capesize Index rose +4.2% in the last 24 hours.',
+    time: '2 min ago',
+    read: false,
+    type: 'warning',
+  },
+  {
+    id: 2,
+    title: 'Forecast Complete',
+    message: 'Route C5 7-day forecast generated successfully.',
+    time: '18 min ago',
+    read: false,
+    type: 'success',
+  },
+  {
+    id: 3,
+    title: 'Port Congestion Update',
+    message: 'Paradip wait time increased to 4.5 days.',
+    time: '1 hour ago',
+    read: true,
+    type: 'info',
+  },
+]
