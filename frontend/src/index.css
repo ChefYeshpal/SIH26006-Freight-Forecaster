@@ -1,33 +1,97 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
-
 * {
   box-sizing: border-box;
 }
 
+/*
+   Palette intent: a calm maritime command surface built from deep navy, slate, and steel.
+   A single weathered amber accent signals action and movement without the glow of a typical AI dashboard.
+   Tokens are defined here first so future component styling can share one visual language.
+*/
 :root {
-  --primary-navy: #0b192c;
-  --navy-surface: #112238;
-  --navy-border: #1e3a5f;
-  --navy-hover: #162d4a;
-  --accent-blue: #0284c7;
-  --accent-cyan: #06b6d4;
-  --accent-light: #e0f2fe;
-  --emerald-green: #10b981;
-  --emerald-bg: #ecfdf5;
-  --rose-red: #f43f5e;
-  --rose-bg: #fff1f2;
-  --amber-gold: #f59e0b;
-  --slate-bg: #f0f4f8;
-  --card-bg: #ffffff;
-  --border-light: #e2e8f0;
-  --border-subtle: #cbd5e1;
-  --text-dark: #0f172a;
-  --text-body: #334155;
-  --text-muted: #64748b;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  /* Color palette */
+  --color-primary: #102a43;
+  --color-primary-strong: #0b1f33;
+  --color-secondary: #526777;
+  --color-background: #eef2f4;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f8fafb;
+  --color-text-primary: #172b3a;
+  --color-text-muted: #687b88;
+  --color-border: #d4dde2;
+  --color-border-strong: #b7c5cd;
+  --color-accent: #b66a2c;
+  --color-accent-soft: #f4e8dc;
+  --color-success: #2f6f5e;
+  --color-success-soft: #e5f0ec;
+  --color-warning: #a66a16;
+  --color-warning-soft: #f7eddc;
+  --color-danger: #ad4b4b;
+  --color-danger-soft: #f7e5e5;
+
+  /* Spacing: 4px base grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+
+  /* Restrained geometry */
+  --radius-small: 3px;
+  --radius-medium: 6px;
+  --radius-large: 10px;
+
+  /* Typography */
+  --font-sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Subtle elevation */
+  --shadow-small: 0 1px 2px rgba(16, 42, 67, 0.06);
+  --shadow-medium: 0 3px 8px rgba(16, 42, 67, 0.08);
+  --shadow-large: 0 8px 18px rgba(16, 42, 67, 0.1);
+
+  /* Shared interaction timing */
+  --transition-fast: 120ms ease-out;
+  --transition-standard: 180ms ease-out;
+  --transition-slow: 260ms ease-in-out;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Existing layout tokens and compatibility aliases */
+  --primary-navy: var(--color-primary-strong);
+  --navy-surface: var(--color-primary);
+  --navy-border: #27445b;
+  --navy-hover: #193b56;
+  --accent-blue: var(--color-accent);
+  --accent-cyan: var(--color-accent);
+  --accent-light: var(--color-accent-soft);
+  --emerald-green: var(--color-success);
+  --emerald-bg: var(--color-success-soft);
+  --rose-red: var(--color-danger);
+  --rose-bg: var(--color-danger-soft);
+  --amber-gold: var(--color-warning);
+  --slate-bg: var(--color-background);
+  --card-bg: var(--color-surface);
+  --border-light: var(--color-border);
+  --border-subtle: var(--color-border-strong);
+  --text-dark: var(--color-text-primary);
+  --text-body: #3e5667;
+  --text-muted: var(--color-text-muted);
+  --shadow-sm: var(--shadow-small);
+  --shadow-md: var(--shadow-medium);
+  --shadow-lg: var(--shadow-large);
+  --shadow-xl: var(--shadow-large);
   --sidebar-width: 260px;
   --sidebar-collapsed-width: 72px;
   --topbar-height: 60px;
