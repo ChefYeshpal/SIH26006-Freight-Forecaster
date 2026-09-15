@@ -60,23 +60,46 @@ export default function LoginPage({ onLogin }) {
         </div>
       </div>
 
-      {/* Login Card */}
       <div className={`login-card ${shake ? 'login-shake' : ''}`}>
-        {/* Branding */}
-        <div className="login-brand">
-          <div className="login-logo">
-            <ShipIcon size={32} />
+        <section className="login-visual-panel" aria-label="Freight intelligence platform">
+          <div className="login-brand">
+            <div className="login-logo">
+              <ShipIcon size={32} />
+            </div>
+            <p className="login-kicker">MINISTRY OF STEEL</p>
+            <h1 className="login-title">
+              FREIGHT<span className="login-title-accent">FORECASTER</span>
+            </h1>
+            <p className="login-subtitle">
+              Maritime intelligence for confident cargo decisions.
+            </p>
           </div>
-          <h1 className="login-title">
-            FREIGHT<span className="login-title-accent">FORECASTER</span>
-          </h1>
-          <p className="login-subtitle">
-            Ministry of Steel • Maritime Intelligence Platform
-          </p>
-        </div>
 
-        {/* Form */}
-        <form className="login-form" onSubmit={handleSubmit}>
+          <div className="login-route-map" aria-hidden="true">
+            <span className="login-route-label login-route-origin">MUMBAI</span>
+            <span className="login-route-label login-route-destination">ROTTERDAM</span>
+            <span className="login-route-node login-route-node-origin" />
+            <span className="login-route-node login-route-node-destination" />
+            <span className="login-route-line login-route-line-one" />
+            <span className="login-route-line login-route-line-two" />
+            <span className="login-route-vessel"><ShipIcon size={18} /></span>
+          </div>
+
+          <div className="login-metrics" aria-hidden="true">
+            <div><strong>24 / 7</strong><span>Market watch</span></div>
+            <div><strong>36 mo</strong><span>Forecast horizon</span></div>
+            <div><strong>Global</strong><span>Route coverage</span></div>
+          </div>
+        </section>
+
+        <section className="login-form-panel">
+          <div className="login-form-heading">
+            <p className="login-panel-kicker">SECURE WORKSPACE</p>
+            <h2>Sign in to continue</h2>
+            <p>Access forecasts, market signals, and route intelligence.</p>
+          </div>
+
+          <form className="login-form" onSubmit={handleSubmit}>
           <div className={`login-field ${email ? 'has-value' : ''}`}>
             <input
               id="login-email"
@@ -105,7 +128,8 @@ export default function LoginPage({ onLogin }) {
 
           {error && (
             <div className="login-error">
-              <span>⚠</span> {error}
+              <span className="login-error-mark" aria-hidden="true">!</span>
+              <span>{error}</span>
             </div>
           )}
 
@@ -141,21 +165,21 @@ export default function LoginPage({ onLogin }) {
               </>
             )}
           </button>
-        </form>
+          </form>
 
-        {/* Demo hint */}
-        <div className="login-demo-hint">
-          <span className="login-demo-tag">DEMO ACCESS</span>
-          <div className="login-demo-creds">
-            <span><strong>Email:</strong> {DEMO_CREDENTIALS.email}</span>
-            <span><strong>Pass:</strong> {DEMO_CREDENTIALS.password}</span>
+          <div className="login-demo-hint">
+            <span className="login-demo-tag">DEMO ACCESS</span>
+            <div className="login-demo-creds">
+              <span><strong>Email:</strong> {DEMO_CREDENTIALS.email}</span>
+              <span><strong>Pass:</strong> {DEMO_CREDENTIALS.password}</span>
+            </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="login-footer">
-          <span>SIH26006 • Intelligent Freight Forecasting</span>
-        </div>
+          <div className="login-footer">
+            <span>SIH26006</span>
+            <span>Intelligent Freight Forecasting</span>
+          </div>
+        </section>
       </div>
     </div>
   )
