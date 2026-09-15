@@ -7,6 +7,8 @@ import {
   LogoutIcon,
   MenuIcon,
   ShipIcon,
+  MoonIcon,
+  SunIcon,
 } from './Icons'
 import { NOTIFICATIONS, DEFAULT_USER_PROFILE, NAV_ITEMS } from '../constants'
 
@@ -16,6 +18,7 @@ export default function Topbar({ currentPage, onToggleSidebar, onLogout, onNavig
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [notifications, setNotifications] = useState(NOTIFICATIONS)
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('ff_theme') === 'dark')
 
   const notifRef = useRef(null)
   const profileRef = useRef(null)
@@ -26,6 +29,11 @@ export default function Topbar({ currentPage, onToggleSidebar, onLogout, onNavig
 
   const unreadCount = notifications.filter((n) => !n.read).length
   const currentLabel = NAV_ITEMS.find((n) => n.id === currentPage)?.label || 'Dashboard'
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = darkMode ? 'dark' : 'light'
+    localStorage.setItem('ff_theme', darkMode ? 'dark' : 'light')
+  }, [darkMode])
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -75,6 +83,15 @@ export default function Topbar({ currentPage, onToggleSidebar, onLogout, onNavig
       </div>
 
       <div className="topbar-right">
+        <button
+          className="topbar-icon-btn topbar-theme-btn"
+          onClick={() => setDarkMode((current) => !current)}
+          title={darkMode ? 'Use light theme' : 'Use dark theme'}
+          aria-label={darkMode ? 'Use light theme' : 'Use dark theme'}
+        >
+          {darkMode ? <SunIcon size={18} /> : <MoonIcon size={18} />}
+        </button>
+
         {/* Notifications */}
         <div className="topbar-notif-wrap" ref={notifRef}>
           <button
