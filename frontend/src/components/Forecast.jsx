@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { ShipIcon, TrendingUpIcon, SlidersIcon, ArrowRightIcon, ActivityIcon } from './Icons'
-import LoadingSkeleton from './LoadingSkeleton'
 import { API_BASE } from '../constants'
 
 const DEFAULT_IRON_ORE = 104
@@ -85,8 +84,13 @@ export default function Forecast() {
       </div>
 
       <div className="forecast-layout">
-        {/* Config Panel */}
-        <div className="forecast-config">
+        <aside className="forecast-config">
+          <div className="forecast-config-header">
+            <span className="forecast-config-kicker">FORECAST CONTROLS</span>
+            <h3>Set the operating view</h3>
+            <p>Adjust the route, horizon, and market assumptions before running a forecast.</p>
+          </div>
+
           {/* Route Selector */}
           <div className="forecast-section">
             <label className="forecast-label">Shipping Route</label>
@@ -128,8 +132,9 @@ export default function Forecast() {
           <div className="forecast-section">
             <label className="forecast-label">
               <SlidersIcon size={16} />
-              What-If Scenario Overrides
+              Scenario Overrides
             </label>
+            <span className="forecast-defaults">DEFAULTS LOADED</span>
 
             <div className="forecast-slider-group">
               <div className="forecast-slider">
@@ -193,10 +198,9 @@ export default function Forecast() {
           </button>
 
           {error && <div className="forecast-error-box">{error}</div>}
-        </div>
+        </aside>
 
-        {/* Results Panel */}
-        <div className="forecast-results">
+        <main className="forecast-results">
           {!result && !loading && (
             <div className="forecast-empty">
               <ShipIcon size={48} />
@@ -205,11 +209,30 @@ export default function Forecast() {
             </div>
           )}
 
-          {loading && <LoadingSkeleton variant="card" count={2} />}
+          {loading && (
+            <div className="forecast-loading" aria-label="Loading forecast results">
+              <div className="forecast-skeleton-decision">
+                <span className="forecast-skeleton-line forecast-skeleton-label" />
+                <span className="forecast-skeleton-block forecast-skeleton-decision-value" />
+                <span className="forecast-skeleton-line forecast-skeleton-rationale" />
+              </div>
+              <div className="forecast-skeleton-hero">
+                <span className="forecast-skeleton-line forecast-skeleton-heading" />
+                <span className="forecast-skeleton-block forecast-skeleton-number" />
+                <span className="forecast-skeleton-line forecast-skeleton-support" />
+                <span className="forecast-skeleton-block forecast-skeleton-gauge" />
+                <div className="forecast-skeleton-stats">
+                  <span className="forecast-skeleton-block" />
+                  <span className="forecast-skeleton-block" />
+                  <span className="forecast-skeleton-block" />
+                  <span className="forecast-skeleton-block" />
+                </div>
+              </div>
+            </div>
+          )}
 
           {result && !loading && (
             <div className="forecast-result-cards">
-              {/* Action Signal */}
               <div className="forecast-signal-card">
                 <div className="forecast-signal-top">
                   <span className="forecast-signal-label">Recommended Charter Action</span>
@@ -217,86 +240,100 @@ export default function Forecast() {
                     {result.recommendation?.urgency} Urgency
                   </span>
                 </div>
-                <div className={`forecast-signal-badge ${getSignalColor(result.recommendation?.action)}`}>
-                  {result.recommendation?.action || '--'}
+                <div className="forecast-decision-row">
+                  <span className={`forecast-decision-mark ${getSignalColor(result.recommendation?.action)}`} aria-hidden="true">
+                    {result.recommendation?.action === 'CHARTER_NOW' ? '→' : result.recommendation?.action === 'WAIT' ? '‖' : '•'}
+                  </span>
+                  <div className={`forecast-signal-badge ${getSignalColor(result.recommendation?.action)}`}>
+                    {result.recommendation?.action || '--'}
+                  </div>
                 </div>
                 <p className="forecast-signal-rationale">
                   {result.recommendation?.rationale}
                 </p>
               </div>
 
-              {/* Prediction Card */}
               <div className="forecast-prediction-card">
                 <div className="forecast-pred-header">
                   <span>AI Forecast — {result.target_metric}</span>
                   <span className="forecast-pred-date">{result.date_evaluated}</span>
                 </div>
 
-                <div className="forecast-pred-main">
-                  <div className="forecast-pred-value">
+                <div className="forecast-hero-metric">
+                  <div className="forecast-pred-value" aria-label="Predicted freight rate">
                     ${result.predicted_rate?.toFixed(2)}
                   </div>
                   <div className={`forecast-pred-change ${result.expected_change_pct > 0 ? 'up' : 'down'}`}>
                     {result.expected_change_pct > 0 ? '▲' : '▼'} {Math.abs(result.expected_change_pct)?.toFixed(2)}%
                   </div>
-                </div>
-
-                {/* Confidence gauge */}
-                <div className="forecast-gauge">
-                  <div className="forecast-gauge-track">
-                    <div className="forecast-gauge-lower"
-                      style={{ left: '0%', width: '100%' }}
-                    />
-                    <div className="forecast-gauge-marker forecast-gauge-current"
-                      style={{ left: '30%' }}
-                      title={`Current: $${result.current_spot_rate?.toFixed(2)}`}
-                    >
-                      <span>Current</span>
-                    </div>
-                    <div className="forecast-gauge-marker forecast-gauge-predicted"
-                      style={{ left: '65%' }}
-                      title={`Predicted: $${result.predicted_rate?.toFixed(2)}`}
-                    >
-                      <span>Predicted</span>
-                    </div>
-                  </div>
-                  <div className="forecast-gauge-labels">
-                    <span>${result.confidence_interval_95pct?.lower?.toFixed(2)}</span>
-                    <span className="forecast-gauge-ci">95% Confidence Interval</span>
-                    <span>${result.confidence_interval_95pct?.upper?.toFixed(2)}</span>
+                  <div className="forecast-confidence-summary">
+                    <span>95% Confidence Interval</span>
+                    <strong>${result.confidence_interval_95pct?.lower?.toFixed(2)} — ${result.confidence_interval_95pct?.upper?.toFixed(2)}</strong>
                   </div>
                 </div>
 
-                <div className="forecast-pred-stats">
-                  <div className="forecast-pred-stat">
-                    <span className="forecast-pred-stat-label">Current Spot</span>
-                    <span className="forecast-pred-stat-value">${result.current_spot_rate?.toFixed(2)}</span>
+                <div className="forecast-detail-region">
+                  <div className="forecast-detail-header">
+                    <span>Rate position</span>
+                    <span>Current vs predicted</span>
                   </div>
-                  <div className="forecast-pred-stat">
-                    <span className="forecast-pred-stat-label">Predicted</span>
-                    <span className="forecast-pred-stat-value">${result.predicted_rate?.toFixed(2)}</span>
+                  <div className="forecast-gauge">
+                    <div className="forecast-gauge-track">
+                      <div className="forecast-gauge-lower"
+                        style={{ left: '0%', width: '100%' }}
+                      />
+                      <div className="forecast-gauge-marker forecast-gauge-current"
+                        style={{ left: '30%' }}
+                        title={`Current: $${result.current_spot_rate?.toFixed(2)}`}
+                      >
+                        <span>Current</span>
+                      </div>
+                      <div className="forecast-gauge-marker forecast-gauge-predicted"
+                        style={{ left: '65%' }}
+                        title={`Predicted: $${result.predicted_rate?.toFixed(2)}`}
+                      >
+                        <span>Predicted</span>
+                      </div>
+                    </div>
+                    <div className="forecast-gauge-labels">
+                      <span>${result.confidence_interval_95pct?.lower?.toFixed(2)}</span>
+                      <span className="forecast-gauge-ci">95% Confidence Interval</span>
+                      <span>${result.confidence_interval_95pct?.upper?.toFixed(2)}</span>
+                    </div>
                   </div>
-                  <div className="forecast-pred-stat">
-                    <span className="forecast-pred-stat-label">CI Lower</span>
-                    <span className="forecast-pred-stat-value">${result.confidence_interval_95pct?.lower?.toFixed(2)}</span>
-                  </div>
-                  <div className="forecast-pred-stat">
-                    <span className="forecast-pred-stat-label">CI Upper</span>
-                    <span className="forecast-pred-stat-value">${result.confidence_interval_95pct?.upper?.toFixed(2)}</span>
+
+                  <div className="forecast-pred-stats">
+                    <div className="forecast-pred-stat">
+                      <span className="forecast-pred-stat-label">Current Spot</span>
+                      <span className="forecast-pred-stat-value">${result.current_spot_rate?.toFixed(2)}</span>
+                    </div>
+                    <div className="forecast-pred-stat">
+                      <span className="forecast-pred-stat-label">Predicted</span>
+                      <span className="forecast-pred-stat-value">${result.predicted_rate?.toFixed(2)}</span>
+                    </div>
+                    <div className="forecast-pred-stat">
+                      <span className="forecast-pred-stat-label">CI Lower</span>
+                      <span className="forecast-pred-stat-value">${result.confidence_interval_95pct?.lower?.toFixed(2)}</span>
+                    </div>
+                    <div className="forecast-pred-stat">
+                      <span className="forecast-pred-stat-label">CI Upper</span>
+                      <span className="forecast-pred-stat-value">${result.confidence_interval_95pct?.upper?.toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Raw JSON Toggle */}
-              <button className="forecast-raw-toggle" onClick={() => setShowRaw(!showRaw)}>
-                {showRaw ? 'Hide' : 'Show'} Raw JSON Response
-              </button>
-              {showRaw && (
-                <pre className="forecast-raw-json">{JSON.stringify(result, null, 2)}</pre>
-              )}
+              <div className="forecast-detail-actions">
+                <button className="forecast-raw-toggle" onClick={() => setShowRaw(!showRaw)}>
+                  {showRaw ? 'Hide' : 'Show'} Raw JSON Response
+                </button>
+                {showRaw && (
+                  <pre className="forecast-raw-json">{JSON.stringify(result, null, 2)}</pre>
+                )}
+              </div>
             </div>
           )}
-        </div>
+        </main>
       </div>
     </div>
   )
