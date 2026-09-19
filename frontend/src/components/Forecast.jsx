@@ -74,6 +74,8 @@ export default function Forecast() {
   return (
     <div className="forecast-page">
       <div className="forecast-header">
+        <div className="forecast-header-copy">
+          <span className="forecast-eyebrow">Decision workspace / live model</span>
         <h2>
           <ShipIcon size={24} />
           Interactive Rate Forecast & Simulation Engine
@@ -81,6 +83,8 @@ export default function Forecast() {
         <p className="forecast-subtitle">
           Configure forecasting horizon, shipping route, and simulate market shock overrides.
         </p>
+        </div>
+        <div className="forecast-header-mark" aria-hidden="true">07<br /><span>DAY VIEW</span></div>
       </div>
 
       <div className="forecast-layout">

@@ -199,7 +199,7 @@ export default function MarketIntelligence() {
           return (
             <div
               key={idx}
-              className={`market-card market-card-${card.color}`}
+              className={`market-card market-card-${card.color} ${idx === 0 ? 'market-card-lead' : ''}`}
               style={{ '--stagger': idx }}
             >
               <div className="market-card-top">

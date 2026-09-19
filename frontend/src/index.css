@@ -583,8 +583,8 @@ button {
 }
 
 /* ==========================================================================
-   APP SHELL LAYOUT
-   ========================================================================== */
+  APP SHELL LAYOUT
+  ========================================================================== */
 
 .app-shell {
   display: flex;
@@ -597,7 +597,7 @@ button {
   display: flex;
   flex-direction: column;
   margin-left: var(--sidebar-width);
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: margin-left var(--transition-standard);
   min-width: 0;
 }
 
@@ -607,8 +607,11 @@ button {
 
 .content-container {
   flex: 1;
-  padding: 28px;
+  padding: 24px 32px 48px;
   overflow-y: auto;
+  background:
+    linear-gradient(90deg, rgba(182, 106, 44, 0.035) 1px, transparent 1px) 0 0 / 48px 48px,
+    var(--slate-bg);
 }
 
 /* ==========================================================================
@@ -626,7 +629,7 @@ button {
   display: flex;
   flex-direction: column;
   z-index: 200;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width var(--transition-standard);
   overflow: hidden;
 }
 
@@ -635,11 +638,11 @@ button {
 }
 
 .sidebar-profile {
-  padding: 20px 16px;
+  padding: 24px 16px 20px;
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid var(--navy-border);
+  border-bottom: 0;
 }
 
 .sidebar-avatar {
@@ -696,7 +699,7 @@ button {
 
 .sidebar-nav {
   flex: 1;
-  padding: 16px 8px;
+  padding: 28px 10px 16px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -704,7 +707,7 @@ button {
 
 .sidebar-nav-label {
   padding: 0 12px;
-  margin-bottom: 8px;
+  margin-bottom: 14px;
 }
 
 .sidebar-nav-label span {
@@ -718,15 +721,15 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 13px 14px;
   background: none;
   border: none;
-  border-radius: 10px;
+  border-radius: 4px;
   color: #94a3b8;
   font-size: 14px;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
   position: relative;
   width: 100%;
   text-align: left;
@@ -735,10 +738,11 @@ button {
 .sidebar-link:hover {
   background: var(--navy-hover);
   color: #e2e8f0;
+  transform: translateX(3px);
 }
 
 .sidebar-link.active {
-  background: rgba(6, 182, 212, 0.12);
+  background: var(--accent-light);
   color: var(--accent-cyan);
 }
 
@@ -844,17 +848,17 @@ button {
    ========================================================================== */
 
 .topbar {
-  height: var(--topbar-height);
-  background: var(--card-bg);
-  border-bottom: 1px solid var(--border-light);
+  height: 76px;
+  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+  border-bottom: 0;
   display: flex;
   align-items: center;
-  padding: 0 24px;
+  padding: 18px 32px 10px;
   gap: 16px;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .topbar-left {
@@ -1188,13 +1192,8 @@ button {
    SUBPAGE CARD
    ========================================================================== */
 
-.subpage-card {
-  background: var(--card-bg);
-  border-radius: 16px;
-  border: 1px solid var(--border-light);
-  padding: 32px;
-  box-shadow: var(--shadow-md);
-  animation: fadeInUp 0.4s ease-out;
+.page-surface {
+  animation: fadeInUp 0.28s ease-out;
 }
 
 /* ==========================================================================
@@ -2212,8 +2211,17 @@ button {
 }
 
 .forecast-header {
-  margin-bottom: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 18px 0 30px;
+  margin-bottom: 26px;
+  border-bottom: 1px solid var(--border-light);
 }
+
+.forecast-eyebrow { display: block; margin-bottom: 8px; color: var(--accent); font: 700 11px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+.forecast-header-mark { color: var(--accent); font: 800 42px/0.8 var(--font-mono); text-align: right; }
+.forecast-header-mark span { color: var(--text-muted); font: 700 9px var(--font-sans); letter-spacing: .12em; }
 
 .forecast-header h2 {
   display: flex;
@@ -2233,12 +2241,19 @@ button {
 
 .forecast-layout {
   display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 28px;
+  grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1.6fr);
+  gap: 44px;
   align-items: start;
 }
 
 .forecast-config {
+  position: sticky;
+  top: 12px;
+  padding: 22px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--border-light);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius-medium);
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -2477,9 +2492,9 @@ button {
 }
 
 .forecast-result-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: minmax(190px, .62fr) minmax(0, 1.38fr);
+  gap: 18px;
   animation: fadeInUp 0.5s ease-out;
 }
 
@@ -2541,6 +2556,7 @@ button {
   background: var(--card-bg);
   border: 1px solid var(--border-light);
   border-radius: 14px;
+  grid-row: span 2;
 }
 
 .forecast-pred-header {
@@ -5618,6 +5634,7 @@ body,
 }
 
 .forecast-detail-actions {
+  grid-column: 1 / -1;
   grid-column: 1;
   grid-row: 2;
   display: grid;
@@ -5762,4 +5779,47 @@ body,
   .forecast-detail-header { align-items: flex-start; flex-direction: column; gap: var(--space-1); }
   .forecast-pred-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .forecast-skeleton-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Page compositions: each workspace has its own scan pattern. */
+.forecast-header-copy { min-width: 0; }
+.forecast-header-mark { color: var(--color-accent); font: 800 42px/0.8 var(--font-mono); text-align: right; }
+.forecast-header-mark span { color: var(--color-text-muted); font: 700 9px var(--font-sans); letter-spacing: .12em; }
+.forecast-eyebrow { display: block; margin-bottom: var(--space-2); color: var(--color-accent); font: 700 11px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+.forecast-config { position: sticky; top: 12px; padding: var(--space-5); background: var(--color-surface-raised); border-top: 3px solid var(--color-accent); }
+
+.explain-overview { display: grid; grid-template-columns: minmax(230px, .7fr) minmax(0, 1.3fr); gap: var(--space-5); align-items: stretch; margin-bottom: var(--space-7); }
+.explain-overview .explain-decision-card,
+.explain-overview .explain-charts { margin-bottom: 0; }
+.explain-decision-card { display: flex; flex-direction: column; justify-content: center; }
+.explain-drivers { padding-top: var(--space-6); border-top: 3px solid var(--color-text-primary); }
+
+.market-header { padding: var(--space-4) 0 var(--space-6); border-bottom: 3px solid var(--color-text-primary); }
+.market-cards-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.market-card-lead { grid-column: span 2; grid-row: span 2; min-height: 270px; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; background: var(--color-primary-strong); border-color: var(--color-primary-strong); }
+.market-card-lead .market-card-value { color: #fff; font-size: clamp(2.5rem, 5vw, 4.5rem); letter-spacing: -.04em; }
+.market-card-lead .market-card-label,
+.market-card-lead .market-card-icon { color: #b9c8d1; }
+.market-card-lead .market-sparkline { border-color: rgba(255,255,255,.18); }
+
+/* Final shell pass: a compact command deck over page-specific workspaces. */
+.content-container { width: min(100%, 1680px); padding: 24px 32px 48px; background: var(--color-background); }
+.topbar { height: 76px; padding: 18px 32px 10px; border-bottom: 0; box-shadow: none; }
+.sidebar-profile { padding-top: 24px; border-bottom: 0; }
+.sidebar-nav { padding-top: 28px; }
+.sidebar-link { transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast); }
+.sidebar-link:hover { transform: translateX(3px); }
+.page-surface { animation: fadeInUp .28s ease-out; }
+
+@media (max-width: 1000px) {
+  .market-cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .explain-overview { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .forecast-header { align-items: flex-start; }
+  .forecast-header-mark { display: none; }
+  .forecast-config { position: static; }
+  .market-cards-grid { grid-template-columns: 1fr; }
+  .market-card-lead { grid-column: auto; grid-row: auto; min-height: 230px; }
 }

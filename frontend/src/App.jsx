@@ -71,27 +71,27 @@ export default function App() {
           onNavigate={setCurrentPage}
         />
 
-        <main className="content-container">
+        <main className={`content-container content-${currentPage}`}>
           {currentPage === 'landing' && (
             <LandingPage onNavigate={setCurrentPage} backendStatus={backendStatus} />
           )}
           {currentPage === 'forecast' && (
-            <div className="subpage-card">
+            <div className="page-surface page-surface-forecast">
               <Forecast />
             </div>
           )}
           {currentPage === 'explainability' && (
-            <div className="subpage-card">
+            <div className="page-surface page-surface-explainability">
               <Explainability />
             </div>
           )}
           {currentPage === 'market' && (
-            <div className="subpage-card">
+            <div className="page-surface page-surface-market">
               <MarketIntelligence />
             </div>
           )}
           {currentPage === 'settings' && (
-            <div className="subpage-card">
+            <div className="page-surface page-surface-settings">
               <Settings />
             </div>
           )}
