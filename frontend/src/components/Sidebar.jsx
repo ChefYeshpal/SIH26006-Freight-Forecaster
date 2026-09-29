@@ -35,6 +35,16 @@ export default function Sidebar({
 
   return (
     <aside className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''}`}>
+      <div className="sidebar-brand">
+        <div className="sidebar-brand-mark"><ShipIcon size={18} /></div>
+        {!collapsed && (
+          <div className="sidebar-brand-copy">
+            <strong>FREIGHT</strong>
+            <span>CONTROL DECK</span>
+          </div>
+        )}
+      </div>
+
       {/* Profile Section */}
       <div className="sidebar-profile">
         <div className="sidebar-avatar">

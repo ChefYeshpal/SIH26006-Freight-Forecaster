@@ -27,6 +27,8 @@ export default function Forecast() {
     { value: '30', label: '30 Days', desc: 'Long-term' },
   ]
 
+  const selectedHorizon = horizons.find((item) => item.value === horizon)
+
   async function runForecast() {
     setError('')
     setLoading(true)
@@ -83,8 +85,15 @@ export default function Forecast() {
         <p className="forecast-subtitle">
           Configure forecasting horizon, shipping route, and simulate market shock overrides.
         </p>
+        <div className="forecast-header-meta" aria-label="Current forecast configuration">
+          <span>ROUTE {route}</span>
+          <span>{selectedHorizon?.label || `${horizon} Days`}</span>
+          <span>SCENARIO READY</span>
         </div>
-        <div className="forecast-header-mark" aria-hidden="true">07<br /><span>DAY VIEW</span></div>
+        </div>
+        <div className="forecast-header-mark" aria-label={`${horizon} day forecast view`}>
+          {String(horizon).padStart(2, '0')}<br /><span>DAY VIEW</span>
+        </div>
       </div>
 
       <div className="forecast-layout">

@@ -12,13 +12,13 @@ import {
 } from './Icons'
 import { NOTIFICATIONS, DEFAULT_USER_PROFILE, NAV_ITEMS } from '../constants'
 
-export default function Topbar({ currentPage, onToggleSidebar, onLogout, onNavigate }) {
+export default function Topbar({ currentPage, onToggleSidebar, onLogout, onNavigate, onOpenCommandPalette }) {
   const [searchFocused, setSearchFocused] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [notifications, setNotifications] = useState(NOTIFICATIONS)
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('ff_theme') === 'dark')
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('ff_theme') !== 'light')
 
   const notifRef = useRef(null)
   const profileRef = useRef(null)
@@ -53,6 +53,21 @@ export default function Topbar({ currentPage, onToggleSidebar, onLogout, onNavig
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
   }
 
+  function handleSearchKeyDown(e) {
+    if (e.key !== 'Enter') return
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) return
+
+    const match = NAV_ITEMS.find((item) =>
+      `${item.label} ${item.id}`.toLowerCase().includes(query)
+    )
+    if (match) {
+      onNavigate(match.id)
+      setSearchQuery('')
+      e.currentTarget.blur()
+    }
+  }
+
   return (
     <header className="topbar">
       <div className="topbar-left">
@@ -68,15 +83,20 @@ export default function Topbar({ currentPage, onToggleSidebar, onLogout, onNavig
       </div>
 
       <div className="topbar-center">
-        <div className={`topbar-search ${searchFocused ? 'focused' : ''}`}>
+        <div
+          className={`topbar-search ${searchFocused ? 'focused' : ''}`}
+          onClick={onOpenCommandPalette}
+        >
           <SearchIcon size={16} />
           <input
             type="text"
-            placeholder="Search routes, ports, commands..."
+            placeholder="Jump to workspace..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
+            aria-label="Jump to workspace"
           />
           <kbd className="topbar-search-kbd">⌘K</kbd>
         </div>

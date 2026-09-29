@@ -161,13 +161,12 @@ export default function LandingPage({ onNavigate, backendStatus }) {
           </div>
 
           <h1 className="hero-headline">
-            Intelligent Maritime Freight Forecasting & Spot Chartering Intelligence
+            Freight intelligence for the next charter decision
           </h1>
 
           <p className="hero-description">
-            A state-of-the-art AI/ML decision-support system designed for bulk cargo procurement.
-            Predict Baltic Capesize and regional shipping rates up to 30 days ahead, understand economic
-            drivers through SHAP explainability, and minimize demurrage for India's steel manufacturing corridor.
+            Monitor Baltic rates, test market scenarios, and move from signal to charter action
+            with one operational view of India&apos;s steel freight corridor.
           </p>
 
           <div className="hero-cta-group">
