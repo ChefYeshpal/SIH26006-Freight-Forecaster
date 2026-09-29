@@ -1,0 +1,320 @@
+.executive-banner {
+  padding: 34px;
+  border-radius: 12px;
+}
+
+.executive-banner .banner-inner {
+  min-width: 0;
+}
+
+.chat-fab-pulse {
+  display: none;
+}
+
+:root:not([data-theme='light']) .sidebar-nav-label span,
+:root:not([data-theme='light']) .sidebar-status-text {
+  color: #c0ccd1;
+}
+
+:root:not([data-theme='light']) .sidebar-link {
+  color: #a9b7bd;
+}
+
+:root:not([data-theme='light']) .login-submit {
+  color: #111518;
+  background: #f0bd62;
+  border-color: #f0bd62;
+  box-shadow: 0 3px 0 #805a25, 0 9px 18px rgba(0, 0, 0, 0.28);
+}
+
+:root:not([data-theme='light']) .login-submit:hover:not(:disabled) {
+  color: #111518;
+  background: #ffd17a;
+  border-color: #ffd17a;
+  box-shadow: 0 4px 0 #805a25, 0 12px 22px rgba(0, 0, 0, 0.34);
+}
+
+:root:not([data-theme='light']) .btn-primary,
+:root:not([data-theme='light']) .btn-primary.light,
+:root:not([data-theme='light']) .forecast-run-btn {
+  color: #111518;
+  background: #f0bd62;
+  border-color: #f0bd62;
+  box-shadow: 0 3px 0 #805a25, 0 9px 18px rgba(0, 0, 0, 0.28);
+}
+
+:root:not([data-theme='light']) .btn-primary:hover,
+:root:not([data-theme='light']) .btn-primary.light:hover,
+:root:not([data-theme='light']) .forecast-run-btn:hover:not(:disabled) {
+  color: #111518;
+  background: #ffd17a;
+  border-color: #ffd17a;
+  box-shadow: 0 4px 0 #805a25, 0 12px 22px rgba(0, 0, 0, 0.34);
+}
+
+:root[data-theme='light'] .forecast-pill.active,
+:root[data-theme='light'] .forecast-horizon-pill.active {
+  color: #6f4615;
+  background: #f5ead9;
+  border-color: #c99751;
+  box-shadow: 0 2px 0 #c4b49c, 0 5px 12px rgba(87, 61, 25, 0.1);
+}
+
+:root[data-theme='light'] .forecast-pill.active .forecast-pill-label,
+:root[data-theme='light'] .forecast-pill.active .forecast-pill-desc,
+:root[data-theme='light'] .forecast-horizon-pill.active .forecast-horizon-desc {
+  color: #6f4615;
+}
+
+:root[data-theme='light'] .forecast-pill:hover,
+:root[data-theme='light'] .forecast-horizon-pill:hover {
+  color: #344951;
+  background: #e9f0f1;
+  border-color: #91a8af;
+}
+
+:root[data-theme='light'] .sidebar-status {
+  color: #344951;
+  background: #eef3f4;
+  border: 1px solid #c2d0d4;
+}
+
+:root[data-theme='light'] .sidebar-status-text {
+  color: #40545d;
+}
+
+:root[data-theme='light'] .login-screen {
+  background-color: #edf2f3;
+  background-image: linear-gradient(rgba(57, 104, 110, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(57, 104, 110, 0.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+:root[data-theme='light'] .login-card {
+  background: #ffffff;
+  border-color: #b9c9ce;
+}
+
+:root[data-theme='light'] .login-visual-panel {
+  color: #18262d;
+  background: linear-gradient(145deg, #f5f8f8, #dce9e9);
+}
+
+:root[data-theme='light'] .login-title {
+  color: #18262d;
+}
+
+:root[data-theme='light'] .login-subtitle,
+:root[data-theme='light'] .login-route-label,
+:root[data-theme='light'] .login-metrics span {
+  color: #53666e;
+}
+
+:root[data-theme='light'] .login-route-node,
+:root[data-theme='light'] .login-route-vessel {
+  background: #f5f8f8;
+}
+
+:root[data-theme='light'] .login-form-panel {
+  background: #ffffff;
+}
+
+:root[data-theme='light'] .login-submit {
+  color: #111518;
+  background: #d6a24d;
+  border-color: #d6a24d;
+  box-shadow: 0 3px 0 #9b6e2d, 0 8px 16px rgba(65, 54, 30, 0.16);
+}
+
+:root[data-theme='light'] .login-submit:hover:not(:disabled) {
+  color: #111518;
+  background: #e6b664;
+  border-color: #e6b664;
+}
+
+@media (max-width: 768px) {
+  .content-container {
+    width: 100%;
+    padding: 18px 14px 34px;
+  }
+
+  .topbar {
+    height: 64px;
+    padding: 10px 14px;
+  }
+
+  .topbar-left,
+  .topbar-right {
+    gap: 8px;
+  }
+
+  .topbar-breadcrumb-page {
+    max-width: 138px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .topbar-center {
+    display: none;
+  }
+
+  .topbar-notif-dropdown,
+  .topbar-profile-dropdown {
+    position: fixed;
+    top: 72px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+  }
+
+  .topbar-dropdown-list {
+    max-height: min(52vh, 320px);
+  }
+
+  .executive-hero {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 20px 16px;
+  }
+
+  .hero-headline {
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .hero-description {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .hero-cta-group,
+  .hero-cta-group button {
+    width: 100%;
+  }
+
+  .hero-cta-group button {
+    justify-content: center;
+  }
+
+  .hero-terminal-card {
+    min-width: 0;
+  }
+
+  .terminal-body,
+  .terminal-header {
+    padding-inline: 14px;
+  }
+
+  .terminal-ticker-row,
+  .terminal-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-box:nth-child(even) {
+    transform: none;
+  }
+
+  .section-heading {
+    font-size: 22px;
+  }
+
+  .executive-banner {
+    padding: 24px 18px;
+    border-radius: 10px;
+  }
+
+  .banner-inner {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .banner-right {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .banner-right button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .command-palette-backdrop {
+    align-items: start;
+    padding: 8vh 12px 12px;
+  }
+
+  .command-palette-header {
+    padding: 18px 16px 14px;
+  }
+
+  .command-palette-search {
+    margin-inline: 16px;
+  }
+
+  .command-palette-footer {
+    justify-content: space-between;
+    padding-inline: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar-profile-btn {
+    padding-inline: 5px;
+  }
+
+  .topbar-profile-btn > svg {
+    display: none;
+  }
+
+  .topbar-icon-btn,
+  .topbar-menu-btn {
+    min-width: 34px;
+    min-height: 34px;
+  }
+
+  .hero-badge-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .gov-badge,
+  .sih-badge {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .forecast-header {
+    gap: 16px;
+  }
+
+  .forecast-header-mark {
+    min-width: 82px;
+    padding-inline: 10px;
+    font-size: 32px;
+  }
+
+  .forecast-header-meta span {
+    font-size: 9px;
+  }
+
+  .command-palette h2 {
+    font-size: 17px;
+  }
+
+  .command-palette-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .command-palette {
+    animation: none;
+  }
+}

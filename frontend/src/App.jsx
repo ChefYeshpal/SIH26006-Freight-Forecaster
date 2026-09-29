@@ -8,12 +8,14 @@ import Explainability from './components/Explainability'
 import MarketIntelligence from './components/MarketIntelligence'
 import Settings from './components/Settings'
 import ChatWidget from './components/ChatWidget'
+import CommandPalette from './components/CommandPalette'
 import { API_BASE } from './constants'
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('ff_auth') === 'true')
   const [currentPage, setCurrentPage] = useState('landing')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
   const [backendStatus, setBackendStatus] = useState('Checking backend microservice...')
 
   useEffect(() => {
@@ -69,29 +71,30 @@ export default function App() {
           onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
           onLogout={handleLogout}
           onNavigate={setCurrentPage}
+          onOpenCommandPalette={() => setCommandPaletteOpen(true)}
         />
 
-        <main className="content-container">
+        <main className={`content-container content-${currentPage}`}>
           {currentPage === 'landing' && (
             <LandingPage onNavigate={setCurrentPage} backendStatus={backendStatus} />
           )}
           {currentPage === 'forecast' && (
-            <div className="subpage-card">
+            <div className="page-surface page-surface-forecast">
               <Forecast />
             </div>
           )}
           {currentPage === 'explainability' && (
-            <div className="subpage-card">
+            <div className="page-surface page-surface-explainability">
               <Explainability />
             </div>
           )}
           {currentPage === 'market' && (
-            <div className="subpage-card">
+            <div className="page-surface page-surface-market">
               <MarketIntelligence />
             </div>
           )}
           {currentPage === 'settings' && (
-            <div className="subpage-card">
+            <div className="page-surface page-surface-settings">
               <Settings />
             </div>
           )}
@@ -100,6 +103,11 @@ export default function App() {
 
       {/* Floating Chat Widget */}
       <ChatWidget />
+      <CommandPalette
+        open={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onNavigate={setCurrentPage}
+      />
     </div>
   )
 }
