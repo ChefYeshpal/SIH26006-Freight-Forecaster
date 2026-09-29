@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ShipIcon } from './Icons'
 import { DEMO_CREDENTIALS } from '../constants'
 
@@ -9,6 +9,10 @@ export default function LoginPage({ onLogin }) {
   const [loading, setLoading] = useState(false)
   const [shake, setShake] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = localStorage.getItem('ff_theme') === 'light' ? 'light' : 'dark'
+  }, [])
 
   async function handleSubmit(e) {
     e.preventDefault()

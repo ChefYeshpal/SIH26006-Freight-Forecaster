@@ -20,6 +20,20 @@
   color: #a9b7bd;
 }
 
+:root:not([data-theme='light']) .login-submit {
+  color: #111518;
+  background: #f0bd62;
+  border-color: #f0bd62;
+  box-shadow: 0 3px 0 #805a25, 0 9px 18px rgba(0, 0, 0, 0.28);
+}
+
+:root:not([data-theme='light']) .login-submit:hover:not(:disabled) {
+  color: #111518;
+  background: #ffd17a;
+  border-color: #ffd17a;
+  box-shadow: 0 4px 0 #805a25, 0 12px 22px rgba(0, 0, 0, 0.34);
+}
+
 :root:not([data-theme='light']) .btn-primary,
 :root:not([data-theme='light']) .btn-primary.light,
 :root:not([data-theme='light']) .forecast-run-btn {
@@ -57,6 +71,64 @@
   color: #344951;
   background: #e9f0f1;
   border-color: #91a8af;
+}
+
+:root[data-theme='light'] .sidebar-status {
+  color: #344951;
+  background: #eef3f4;
+  border: 1px solid #c2d0d4;
+}
+
+:root[data-theme='light'] .sidebar-status-text {
+  color: #40545d;
+}
+
+:root[data-theme='light'] .login-screen {
+  background-color: #edf2f3;
+  background-image: linear-gradient(rgba(57, 104, 110, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(57, 104, 110, 0.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+:root[data-theme='light'] .login-card {
+  background: #ffffff;
+  border-color: #b9c9ce;
+}
+
+:root[data-theme='light'] .login-visual-panel {
+  color: #18262d;
+  background: linear-gradient(145deg, #f5f8f8, #dce9e9);
+}
+
+:root[data-theme='light'] .login-title {
+  color: #18262d;
+}
+
+:root[data-theme='light'] .login-subtitle,
+:root[data-theme='light'] .login-route-label,
+:root[data-theme='light'] .login-metrics span {
+  color: #53666e;
+}
+
+:root[data-theme='light'] .login-route-node,
+:root[data-theme='light'] .login-route-vessel {
+  background: #f5f8f8;
+}
+
+:root[data-theme='light'] .login-form-panel {
+  background: #ffffff;
+}
+
+:root[data-theme='light'] .login-submit {
+  color: #111518;
+  background: #d6a24d;
+  border-color: #d6a24d;
+  box-shadow: 0 3px 0 #9b6e2d, 0 8px 16px rgba(65, 54, 30, 0.16);
+}
+
+:root[data-theme='light'] .login-submit:hover:not(:disabled) {
+  color: #111518;
+  background: #e6b664;
+  border-color: #e6b664;
 }
 
 @media (max-width: 768px) {
