@@ -95,7 +95,6 @@ export default function Topbar({
             onBlur={() => setSearchFocused(false)}
             aria-label="Jump to workspace"
           />
-          <kbd className="topbar-search-kbd">⌘K</kbd>
         </div>
       </div>
 
