@@ -4330,6 +4330,14 @@ body {
   padding: 8px 0 48px;
 }
 
+.content-market {
+  padding-top: 12px;
+}
+
+.content-market .page-surface {
+  padding-top: 0;
+}
+
 .btn-primary,
 .btn-secondary,
 .btn-ghost,

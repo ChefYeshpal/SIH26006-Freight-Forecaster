@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { API_BASE } from '../constants'
-import { TrendingUpIcon, ActivityIcon, AnchorIcon, ShipIcon, GlobeIcon } from './Icons'
+import { ActivityIcon, AnchorIcon, ShipIcon, GlobeIcon } from './Icons'
 import LoadingSkeleton from './LoadingSkeleton'
 import AnimatedCounter from './AnimatedCounter'
 import useScrollAnimation from '../hooks/useScrollAnimation'
@@ -10,22 +10,13 @@ export default function MarketIntelligence() {
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [refreshCountdown, setRefreshCountdown] = useState(60)
 
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.1 })
   const { ref: cardsRef, isVisible: cardsVisible } = useScrollAnimation({ threshold: 0.1 })
 
   useEffect(() => {
     fetchData()
-    const interval = setInterval(() => {
-      setRefreshCountdown((prev) => {
-        if (prev <= 1) {
-          fetchData()
-          return 60
-        }
-        return prev - 1
-      })
-    }, 1000)
+    const interval = setInterval(fetchData, 60000)
     return () => clearInterval(interval)
   }, [])
 
@@ -134,20 +125,12 @@ export default function MarketIntelligence() {
       color: 'rose',
     },
     {
-      label: 'Brent Crude Oil',
-      value: snapshot.brent_crude_usd,
-      unit: '$/bbl',
-      field: 'brent_crude_usd',
-      icon: <TrendingUpIcon size={20} />,
-      color: 'blue',
-    },
-    {
       label: 'VLSFO Bunker Fuel',
       value: snapshot.bunker_fuel_vlsfo_usd,
       unit: '$/t',
       field: 'bunker_fuel_vlsfo_usd',
       icon: <ActivityIcon size={20} />,
-      color: 'purple',
+      color: 'blue',
     },
   ] : []
 
@@ -166,27 +149,8 @@ export default function MarketIntelligence() {
         <div className="market-header-left">
           <h2>Market Intelligence</h2>
           <p className="market-subtitle">
-            Real-time maritime commodity and freight rate monitoring
+            frieght rate monitoring
           </p>
-        </div>
-        <div className="market-header-right">
-          <div className="market-refresh">
-            <div className="market-refresh-ring">
-              <svg viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
-                <circle
-                  cx="18" cy="18" r="16" fill="none" stroke="var(--accent-cyan)" strokeWidth="2"
-                  strokeDasharray="100" strokeDashoffset={100 - (refreshCountdown / 60) * 100}
-                  strokeLinecap="round"
-                  style={{ transition: 'stroke-dashoffset 1s linear' }}
-                />
-              </svg>
-              <span className="market-refresh-num">{refreshCountdown}s</span>
-            </div>
-            <button className="market-refresh-btn" onClick={() => { fetchData(); setRefreshCountdown(60) }}>
-              Refresh Now
-            </button>
-          </div>
         </div>
       </div>
 
