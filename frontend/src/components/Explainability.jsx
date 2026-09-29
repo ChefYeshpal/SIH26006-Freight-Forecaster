@@ -77,7 +77,6 @@ export default function Explainability() {
         </p>
       </div>
 
-      <div className="explain-overview">
       {/* Decision Banner */}
       <div className="explain-decision-card">
         <div className="explain-decision-top">
@@ -120,7 +119,6 @@ export default function Explainability() {
           </div>
         </div>
       )}
-      </div>
 
       {/* Animated SHAP Bar Chart */}
       <div ref={driversRef} className={`explain-drivers ${driversVisible ? 'visible' : ''}`}>

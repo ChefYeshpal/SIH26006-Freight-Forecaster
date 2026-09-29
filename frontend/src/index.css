@@ -2867,7 +2867,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  opacity: 0;
+  opacity: 1;
 }
 
 .explain-bar-label {
@@ -2898,7 +2898,7 @@ button {
 .explain-bar-fill {
   height: 100%;
   border-radius: 4px;
-  width: 0;
+  width: var(--width);
 }
 
 .explain-bar-fill.bullish {
@@ -3273,6 +3273,10 @@ button {
   gap: var(--space-5);
 }
 
+.explain-charts-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .explain-driver-section {
   min-width: 0;
   padding: var(--space-5);
@@ -3492,6 +3496,7 @@ button {
 @media (max-width: 900px) {
   .explain-drivers,
   .market-cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .explain-charts-grid { grid-template-columns: 1fr; }
   .market-context-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
