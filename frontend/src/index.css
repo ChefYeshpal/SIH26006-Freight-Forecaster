@@ -5724,10 +5724,11 @@ body,
 }
 
 .forecast-header-mark {
+  box-sizing: border-box;
+  flex: 0 0 auto;
   min-width: 112px;
-  padding: 14px 16px 12px;
+  padding: 14px 24px 12px 16px;
   border: 1px solid var(--color-border-strong);
-  border-right: 0;
   background: rgba(214, 162, 77, 0.07);
   box-shadow: var(--shadow-sm);
 }
