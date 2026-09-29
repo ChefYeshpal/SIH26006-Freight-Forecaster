@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { BotIcon, SendIcon, XIcon } from './Icons'
 import { API_BASE } from '../constants'
 
@@ -117,7 +118,7 @@ export default function ChatWidget() {
           {messages.map((msg, idx) => (
             <div key={idx} className={`chat-msg chat-msg-${msg.role}`}>
               <div className="chat-msg-bubble">
-                <p>{msg.content}</p>
+                <ReactMarkdown>{msg.content}</ReactMarkdown>
                 {/* Show action signal if available */}
                 {msg.data?.action_signal && (
                   <div className="chat-msg-signal">
