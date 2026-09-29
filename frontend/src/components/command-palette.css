@@ -132,6 +132,19 @@
   border-color: var(--color-border-strong);
 }
 
+:root[data-theme='light'] .command-palette-item.selected {
+  color: #6f4615;
+  background: #f5ead9;
+  border-color: #c99751;
+  box-shadow: inset 3px 0 0 #a96d25;
+}
+
+:root[data-theme='light'] .command-palette-item.selected .command-palette-item-icon {
+  color: #6f4615;
+  background: #fffaf2;
+  border-color: #c99751;
+}
+
 .command-palette-item-icon {
   display: grid;
   width: 28px;

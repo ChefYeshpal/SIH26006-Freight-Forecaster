@@ -5231,6 +5231,7 @@ textarea:focus {
 .topbar-search input,
 .topbar-search-kbd { font-family: var(--font-sans); }
 .topbar-search input { color: var(--color-text-primary); }
+.topbar-search input { padding-left: var(--space-1); }
 
 .topbar-search-kbd {
   padding: var(--space-1) var(--space-2);
@@ -6507,16 +6508,18 @@ body,
 
 /* Final shell pass: a compact command deck over page-specific workspaces. */
 .content-container { width: min(100%, 1680px); padding: 24px 32px 48px; background: var(--color-background); }
+.content-market { padding-top: 0; }
 .topbar { height: 76px; padding: 18px 32px 10px; border-bottom: 0; box-shadow: none; }
 .sidebar-profile { padding-top: 24px; border-bottom: 0; }
 .sidebar-nav { padding-top: 28px; }
 .sidebar-link { transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast); }
 .sidebar-link:hover { transform: translateX(3px); }
 .page-surface { animation: fadeInUp .28s ease-out; }
+.market-header { padding: 0 0 var(--space-3); margin-bottom: var(--space-3); }
 
 @media (max-width: 1000px) {
   .market-cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .explain-overview { grid-template-columns: 1fr; }
+  .market-header { padding-bottom: var(--space-3); margin-bottom: var(--space-3); }
 }
 
 @media (max-width: 620px) {

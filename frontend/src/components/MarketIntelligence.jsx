@@ -149,7 +149,7 @@ export default function MarketIntelligence() {
         <div className="market-header-left">
           <h2>Market Intelligence</h2>
           <p className="market-subtitle">
-            frieght rate monitoring
+            Live freight rate monitoring
           </p>
         </div>
       </div>

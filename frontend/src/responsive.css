@@ -120,15 +120,30 @@
 
 :root[data-theme='light'] .login-submit {
   color: #111518;
-  background: #d6a24d;
-  border-color: #d6a24d;
+  background: #c8943f;
+  border-color: #c8943f;
   box-shadow: 0 3px 0 #9b6e2d, 0 8px 16px rgba(65, 54, 30, 0.16);
 }
 
 :root[data-theme='light'] .login-submit:hover:not(:disabled) {
   color: #111518;
-  background: #e6b664;
-  border-color: #e6b664;
+  background: #b98635;
+  border-color: #b98635;
+}
+
+:root[data-theme='light'] .login-title-accent {
+  color: #d6a24d;
+}
+
+:root[data-theme='light'] .topbar-avatar,
+:root[data-theme='light'] .topbar-profile-avatar-lg {
+  background: var(--color-accent);
+  color: #111518;
+}
+
+:root[data-theme='light'] .forecast-signal-badge.signal-green {
+  background: #eaf4ed;
+  color: #4d876f;
 }
 
 @media (max-width: 768px) {
