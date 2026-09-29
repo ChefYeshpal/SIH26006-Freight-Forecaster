@@ -13,7 +13,6 @@ export default function Forecast() {
   const [error, setError] = useState('')
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [showRaw, setShowRaw] = useState(false)
 
   const routes = [
     { id: 'C5', label: 'Route C5', desc: 'W. Australia → India', icon: '🇦🇺' },
@@ -58,6 +57,7 @@ export default function Forecast() {
       })
       if (!res.ok) throw new Error(`API returned status ${res.status}`)
       const data = await res.json()
+      console.log('Forecast API response:', data)
       setResult(data)
     } catch (err) {
       setError(`Error: ${err.message}`)
@@ -336,14 +336,6 @@ export default function Forecast() {
                 </div>
               </div>
 
-              <div className="forecast-detail-actions">
-                <button className="forecast-raw-toggle" onClick={() => setShowRaw(!showRaw)}>
-                  {showRaw ? 'Hide' : 'Show'} Raw JSON Response
-                </button>
-                {showRaw && (
-                  <pre className="forecast-raw-json">{JSON.stringify(result, null, 2)}</pre>
-                )}
-              </div>
             </div>
           )}
         </main>
