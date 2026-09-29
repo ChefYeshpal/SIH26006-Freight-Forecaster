@@ -12,4 +12,12 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.0"
+      - key: ALARM_SMTP_HOST
+        value: "smtp.gmail.com"
+      - key: ALARM_SMTP_PORT
+        value: "587"
+      - key: ALARM_SMTP_USER
+        sync: false
+      - key: ALARM_SMTP_PASS
+        sync: false
     healthCheckPath: /health

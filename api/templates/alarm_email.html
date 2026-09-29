@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Maritime Freight Alarm Notification</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #0f172a; margin: 0; padding: 24px; }
+    .card { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .header { background: #0f172a; color: #ffffff; padding: 24px; text-align: left; }
+    .header h1 { margin: 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .header p { margin: 6px 0 0 0; color: #94a3b8; font-size: 13px; }
+    .content { padding: 24px; }
+    .alert-banner { background: #fef2f2; border: 1px solid #fee2e2; border-left: 4px solid #ef4444; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; }
+    .alert-banner p { margin: 0; font-size: 14px; color: #991b1b; font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; margin-bottom: 24px; }
+    th { text-align: left; padding: 10px 12px; background: #f1f5f9; font-size: 12px; text-transform: uppercase; color: #475569; letter-spacing: 0.5px; border-bottom: 1px solid #cbd5e1; }
+    td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    .badge-critical { background: #fee2e2; color: #991b1b; }
+    .badge-high { background: #ffedd5; color: #9a3412; }
+    .badge-warning { background: #fef9c3; color: #854d0e; }
+    .footer { background: #f8fafc; padding: 16px 24px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 12px; color: #64748b; }
+    .btn { display: inline-block; background: #2563eb; color: #ffffff !important; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>🚢 SIH26006 Maritime Freight Forecaster</h1>
+      <p>Automated Early Warning & Procurement Advisory Alert</p>
+    </div>
+    <div class="content">
+      <div class="alert-banner">
+        <p>⚠️ Attention Required: {{ total_triggered }} market alert(s) have triggered.</p>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Alert Name</th>
+            <th>Metric</th>
+            <th>Value</th>
+            <th>Threshold</th>
+            <th>Severity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in triggers %}
+          <tr>
+            <td><strong>{{ t.rule_name }}</strong><br><span style="font-size: 11px; color: #64748b;">{{ t.message }}</span></td>
+            <td>{{ t.metric_label }}</td>
+            <td><strong>{{ t.current_value }}</strong></td>
+            <td>{{ t.condition }} {{ t.threshold }}</td>
+            <td><span class="badge badge-{{ t.severity }}">{{ t.severity }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="http://localhost:5173" class="btn">View Live Forecaster Dashboard</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>Ministry of Steel • Bulk Cargo Import Freight Intelligence<br>Generated at {{ evaluated_at }}</p>
+    </div>
+  </div>
+</body>
+</html>

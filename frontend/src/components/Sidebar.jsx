@@ -27,11 +27,13 @@ export default function Sidebar({
   onToggle,
   onLogout,
   backendStatus,
+  onCheckHealth,
 }) {
   const user = JSON.parse(
     localStorage.getItem('ff_user') || JSON.stringify(DEFAULT_USER_PROFILE)
   )
-  const isHealthy = backendStatus && backendStatus.includes('Online')
+  const isHealthy = Boolean(backendStatus && backendStatus.includes('Online'))
+  const isChecking = Boolean(backendStatus && backendStatus.includes('Checking'))
 
   return (
     <aside className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''}`}>
@@ -86,11 +88,22 @@ export default function Sidebar({
       {/* Bottom Section */}
       <div className="sidebar-bottom">
         {/* API Status */}
-        <div className="sidebar-status" title={backendStatus}>
-          <div className={`sidebar-status-dot ${isHealthy ? 'healthy' : 'offline'}`} />
+        <div
+          className="sidebar-status"
+          title={`${backendStatus} (Click to refresh status)`}
+          onClick={onCheckHealth}
+          role="button"
+          tabIndex={0}
+          style={{ cursor: 'pointer' }}
+        >
+          <div
+            className={`sidebar-status-dot ${
+              isHealthy ? 'healthy' : isChecking ? 'checking' : 'offline'
+            }`}
+          />
           {!collapsed && (
             <span className="sidebar-status-text">
-              {isHealthy ? 'API Online' : 'API Offline'}
+              {isHealthy ? 'API Online' : isChecking ? 'Connecting...' : 'API Offline'}
             </span>
           )}
         </div>

@@ -72,7 +72,88 @@ export const NAV_ITEMS = [
   { id: 'settings', label: 'Settings', icon: 'settings' },
 ]
 
-export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+export function getApiBase() {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('ff_api_url')
+    if (saved && saved.trim()) {
+      return saved.trim().replace(/\/+$/, '')
+    }
+  }
+  return (import.meta.env.VITE_API_BASE || 'http://localhost:8000').replace(/\/+$/, '')
+}
+
+export const API_BASE = {
+  toString() {
+    return getApiBase()
+  },
+  valueOf() {
+    return getApiBase()
+  },
+  [Symbol.toPrimitive]() {
+    return getApiBase()
+  },
+}
+
+// ========== Alarm System Configurations ==========
+export const ALARM_METRICS = [
+  { value: 'bci_index', label: 'Baltic Capesize Index (BCI)', unit: 'pts', defaultThresh: 2600 },
+  { value: 'route_c5_usd_per_tonne', label: 'Route C5 Rate (Australia → India/China)', unit: '$/t', defaultThresh: 11.5 },
+  { value: 'route_c3_usd_per_tonne', label: 'Route C3 Rate (Tubarao → Qingdao)', unit: '$/t', defaultThresh: 27.0 },
+  { value: 'iron_ore_price_usd', label: 'Iron Ore 62% Fe (Qingdao CFR)', unit: '$/t', defaultThresh: 118.0 },
+  { value: 'port_congestion_east_india_days', label: 'Paradip / Vizag Port Wait Days', unit: 'days', defaultThresh: 5.0 },
+  { value: 'bunker_fuel_vlsfo_usd', label: 'VLSFO Bunker Fuel (Singapore/Fujairah)', unit: '$/t', defaultThresh: 660.0 },
+  { value: 'charter_signal', label: 'AI Procurement Charter Signal', unit: 'signal', defaultThresh: 0 },
+]
+
+export const ALARM_CONDITIONS = [
+  { value: 'above', label: 'Rises Above Threshold (>)' },
+  { value: 'below', label: 'Drops Below Threshold (<)' },
+  { value: 'change_pct_above', label: '7-Day Rise > X% (Surge)' },
+  { value: 'change_pct_below', label: '7-Day Drop > X% (Drop)' },
+  { value: 'signal_equals', label: 'Signal Matches' },
+]
+
+export const ALARM_SEVERITIES = {
+  critical: { label: 'Critical', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)', icon: '🔴' },
+  high: { label: 'High', color: '#f97316', bg: 'rgba(249, 115, 22, 0.15)', icon: '🟠' },
+  warning: { label: 'Warning', color: '#eab308', bg: 'rgba(234, 179, 8, 0.15)', icon: '🟡' },
+}
+
+export const DEFAULT_ALARMS = [
+  {
+    id: 'alarm-bci-surge',
+    name: 'Capesize Volatility Alert',
+    metric: 'bci_index',
+    condition: 'above',
+    threshold: 2500,
+    signal_value: 'CHARTER_NOW',
+    enabled: true,
+    notify_email: 'admin@freight.gov.in',
+    notify_push: true,
+  },
+  {
+    id: 'alarm-charter-action',
+    name: 'Immediate Tender Signal',
+    metric: 'charter_signal',
+    condition: 'signal_equals',
+    threshold: 0,
+    signal_value: 'CHARTER_NOW',
+    enabled: true,
+    notify_email: 'admin@freight.gov.in',
+    notify_push: true,
+  },
+  {
+    id: 'alarm-port-delay',
+    name: 'East Coast Port Congestion',
+    metric: 'port_congestion_east_india_days',
+    condition: 'above',
+    threshold: 4.8,
+    signal_value: null,
+    enabled: true,
+    notify_email: '',
+    notify_push: true,
+  },
+]
 
 // ========== Notification Defaults ==========
 export const NOTIFICATIONS = [
@@ -101,3 +182,4 @@ export const NOTIFICATIONS = [
     type: 'info',
   },
 ]
+

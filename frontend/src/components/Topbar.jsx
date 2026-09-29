@@ -10,24 +10,28 @@ import {
   MoonIcon,
   SunIcon,
 } from './Icons'
-import { NOTIFICATIONS, DEFAULT_USER_PROFILE, NAV_ITEMS } from '../constants'
+import { DEFAULT_USER_PROFILE, NAV_ITEMS } from '../constants'
 
-export default function Topbar({ currentPage, onToggleSidebar, onLogout, onNavigate, onOpenCommandPalette }) {
+export default function Topbar({
+  currentPage,
+  onToggleSidebar,
+  onLogout,
+  onNavigate,
+  onOpenCommandPalette,
+  alarmCount = 0,
+  onOpenAlarms,
+}) {
   const [searchFocused, setSearchFocused] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
-  const [notifications, setNotifications] = useState(NOTIFICATIONS)
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('ff_theme') !== 'light')
 
-  const notifRef = useRef(null)
   const profileRef = useRef(null)
 
   const user = JSON.parse(
     localStorage.getItem('ff_user') || JSON.stringify(DEFAULT_USER_PROFILE)
   )
 
-  const unreadCount = notifications.filter((n) => !n.read).length
   const currentLabel = NAV_ITEMS.find((n) => n.id === currentPage)?.label || 'Dashboard'
 
   useEffect(() => {
@@ -35,12 +39,9 @@ export default function Topbar({ currentPage, onToggleSidebar, onLogout, onNavig
     localStorage.setItem('ff_theme', darkMode ? 'dark' : 'light')
   }, [darkMode])
 
-  // Close dropdowns on outside click
+  // Close profile dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e) {
-      if (notifRef.current && !notifRef.current.contains(e.target)) {
-        setShowNotifications(false)
-      }
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setShowProfile(false)
       }
@@ -48,10 +49,6 @@ export default function Topbar({ currentPage, onToggleSidebar, onLogout, onNavig
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
-  function markAllRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
-  }
 
   function handleSearchKeyDown(e) {
     if (e.key !== 'Enter') return
@@ -112,45 +109,16 @@ export default function Topbar({ currentPage, onToggleSidebar, onLogout, onNavig
           {darkMode ? <SunIcon size={18} /> : <MoonIcon size={18} />}
         </button>
 
-        {/* Notifications */}
-        <div className="topbar-notif-wrap" ref={notifRef}>
-          <button
-            className="topbar-icon-btn"
-            onClick={() => {
-              setShowNotifications(!showNotifications)
-              setShowProfile(false)
-            }}
-          >
-            <BellIcon size={19} />
-            {unreadCount > 0 && <span className="topbar-badge">{unreadCount}</span>}
-          </button>
-
-          {showNotifications && (
-            <div className="topbar-dropdown topbar-notif-dropdown">
-              <div className="topbar-dropdown-header">
-                <span>Notifications</span>
-                <button className="topbar-dropdown-action" onClick={markAllRead}>
-                  Mark all read
-                </button>
-              </div>
-              <div className="topbar-dropdown-list">
-                {notifications.map((n) => (
-                  <div
-                    key={n.id}
-                    className={`topbar-notif-item ${n.read ? '' : 'unread'}`}
-                  >
-                    <div className={`topbar-notif-dot ${n.type}`} />
-                    <div className="topbar-notif-content">
-                      <span className="topbar-notif-title">{n.title}</span>
-                      <span className="topbar-notif-msg">{n.message}</span>
-                      <span className="topbar-notif-time">{n.time}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Alarm System Trigger */}
+        <button
+          className="topbar-icon-btn topbar-alarm-btn"
+          onClick={onOpenAlarms}
+          title={alarmCount > 0 ? `${alarmCount} Active Alarms Triggered` : 'Market Early Warning & Alarms'}
+          aria-label="Open Alarms System"
+        >
+          <BellIcon size={19} />
+          {alarmCount > 0 && <span className="topbar-badge topbar-badge-danger">{alarmCount}</span>}
+        </button>
 
         {/* Profile */}
         <div className="topbar-profile-wrap" ref={profileRef}>

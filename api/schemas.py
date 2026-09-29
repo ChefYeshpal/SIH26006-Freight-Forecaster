@@ -104,3 +104,72 @@ class ChatResponse(BaseModel):
     estimated_savings_inr_cr: Optional[float] = Field(None, description="Estimated savings in Indian Crores INR if applicable")
     follow_up_suggestions: List[str] = Field(default_factory=list, description="Suggested follow-up questions for the user")
 
+
+# ========== Alarm System Schemas ==========
+
+class AlarmRule(BaseModel):
+    id: str = Field(..., description="Unique identifier for the alarm rule")
+    name: str = Field(..., description="Human-readable alarm name")
+    metric: str = Field(
+        ...,
+        description="Metric key: 'bci_index' | 'route_c5_usd_per_tonne' | 'route_c3_usd_per_tonne' | 'iron_ore_price_usd' | 'port_congestion_east_india_days' | 'bunker_fuel_vlsfo_usd' | 'charter_signal'"
+    )
+    condition: str = Field(
+        ...,
+        description="Condition: 'above' | 'below' | 'change_pct_above' | 'change_pct_below' | 'signal_equals'"
+    )
+    threshold: float = Field(0.0, description="Numeric threshold value (use 0 for signal-based rules)")
+    signal_value: Optional[str] = Field(None, description="Signal to match: 'CHARTER_NOW' | 'WAIT' | 'HOLD_NEUTRAL'")
+    enabled: bool = Field(True, description="Whether the rule is currently active")
+    notify_email: Optional[str] = Field(None, description="Email address to notify when alarm fires")
+    email: Optional[str] = Field(None, description="Email address to notify when alarm fires (alias for notify_email)")
+    notify_push: bool = Field(True, description="Whether to trigger browser push notification")
+
+
+class AlarmTrigger(BaseModel):
+    rule_id: str
+    rule_name: str
+    metric: str
+    metric_label: str
+    current_value: float
+    threshold: float
+    condition: str
+    severity: str = Field(..., description="'critical' | 'high' | 'warning'")
+    message: str
+    triggered_at: str
+
+
+class AlarmEvaluateRequest(BaseModel):
+    rules: List[AlarmRule]
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "rules": [
+                    {
+                        "id": "alarm-1",
+                        "name": "BCI Spike Alert",
+                        "metric": "bci_index",
+                        "condition": "above",
+                        "threshold": 3000,
+                        "enabled": True,
+                        "notify_email": "officer@freight.gov.in",
+                        "notify_push": True
+                    }
+                ]
+            }
+        }
+
+
+class AlarmEvaluateResponse(BaseModel):
+    triggered: List[AlarmTrigger]
+    evaluated_at: str
+    total_rules: int
+    total_triggered: int
+
+
+class AlarmEmailRequest(BaseModel):
+    to_email: str = Field(..., description="Recipient email address")
+    subject: str = Field(..., description="Email subject line")
+    triggers: List[AlarmTrigger]
+

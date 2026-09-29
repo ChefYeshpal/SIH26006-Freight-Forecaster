@@ -792,7 +792,14 @@ button {
 }
 
 .sidebar-status-dot.healthy { background: var(--emerald-green); box-shadow: 0 0 6px rgba(16, 185, 129, 0.5); }
+.sidebar-status-dot.checking { background: #eab308; box-shadow: 0 0 6px rgba(234, 179, 8, 0.5); animation: pulseChecking 1.2s infinite; }
 .sidebar-status-dot.offline { background: var(--rose-red); }
+
+@keyframes pulseChecking {
+  0% { opacity: 0.5; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 0.5; transform: scale(0.9); }
+}
 
 .sidebar-status-text {
   font-size: 12px;

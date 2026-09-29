@@ -139,21 +139,57 @@ export default function Settings() {
                     type="url"
                     value={apiUrl}
                     onChange={(e) => setApiUrl(e.target.value)}
-                    placeholder="http://localhost:8000"
+                    placeholder="https://your-api-name.onrender.com"
                   />
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                    <button
+                      type="button"
+                      className="settings-save-btn"
+                      style={{ fontSize: '11px', padding: '4px 8px', background: 'transparent', color: 'var(--color-primary)' }}
+                      onClick={() => setApiUrl('http://localhost:8000')}
+                    >
+                      Use Localhost
+                    </button>
+                    <button
+                      type="button"
+                      className="settings-save-btn"
+                      style={{ fontSize: '11px', padding: '4px 8px', background: 'transparent', color: 'var(--color-primary)' }}
+                      onClick={() => setApiUrl('https://sih26006-freight-api.onrender.com')}
+                    >
+                      Use Render Cloud
+                    </button>
+                  </div>
                 </div>
 
-                <div className="settings-actions" style={{ gap: '12px' }}>
+                <div className="settings-actions" style={{ gap: '12px', flexWrap: 'wrap' }}>
                   <button
                     className="settings-test-btn"
                     onClick={testApiConnection}
                     disabled={apiTesting}
                   >
                     {apiTesting ? (
-                      <><span className="settings-spinner" /> Testing...</>
+                      <><span className="settings-spinner" /> Testing (may take 30s if sleeping)...</>
                     ) : (
                       <><ActivityIcon size={16} /> Test Connection</>
                     )}
+                  </button>
+
+                  <button
+                    className="settings-save-btn"
+                    onClick={() => {
+                      if (apiUrl && apiUrl.trim()) {
+                        localStorage.setItem('ff_api_url', apiUrl.trim())
+                      } else {
+                        localStorage.removeItem('ff_api_url')
+                      }
+                      setSaved(true)
+                      setTimeout(() => {
+                        setSaved(false)
+                        window.location.reload()
+                      }, 1000)
+                    }}
+                  >
+                    {saved ? '✓ Saved! Reloading...' : 'Save & Apply URL'}
                   </button>
                 </div>
 

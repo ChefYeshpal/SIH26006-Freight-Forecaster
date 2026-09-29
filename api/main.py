@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from api.schemas import HealthResponse
-from api.routes import predict, explainability, market, chat
+from api.routes import predict, explainability, market, chat, alarms
 from api.services.forecaster_service import ForecasterService
 
 app = FastAPI(
@@ -49,6 +49,7 @@ app.include_router(predict.router)
 app.include_router(explainability.router)
 app.include_router(market.router)
 app.include_router(chat.router)
+app.include_router(alarms.router)
 
 
 @app.on_event("startup")
