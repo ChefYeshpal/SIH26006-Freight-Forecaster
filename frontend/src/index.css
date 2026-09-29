@@ -2176,6 +2176,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 40px;
+  padding: 24px;
 }
 
 .banner-kicker {
@@ -2202,7 +2203,10 @@ button {
 
 .banner-right {
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 12px;
+  flex-wrap: wrap;
   flex-shrink: 0;
 }
 
@@ -5485,7 +5489,7 @@ body,
 }
 
 .metrics-cards-grid {
-  grid-template-columns: 1.25fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 

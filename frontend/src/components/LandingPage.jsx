@@ -153,13 +153,6 @@ export default function LandingPage({ onNavigate, backendStatus }) {
       {/* ========== HERO SECTION ========== */}
       <section ref={heroRef} className={`executive-hero ${heroVisible ? 'visible' : ''}`}>
         <div className="hero-content">
-          <div className="hero-badge-row">
-            <span className="gov-badge">
-              <span className="live-dot pulse" /> Ministry of Steel • East Coast Initiative
-            </span>
-            <span className="sih-badge">SIH26006 Problem Statement</span>
-          </div>
-
           <h1 className="hero-headline">
             Freight intelligence for the next charter decision
           </h1>
@@ -273,16 +266,6 @@ export default function LandingPage({ onNavigate, backendStatus }) {
           </div>
 
           <div className="metric-box" style={{ '--stagger': 2 }}>
-            <div className="metric-box-top"><span className="metric-badge">Benchmark</span></div>
-            <div className="metric-number">
-              <AnimatedCounter end={64.7} suffix="%" decimals={1} duration={1800} />
-            </div>
-            <div className="metric-name">Directional Accuracy</div>
-            <div className="metric-divider" />
-            <p className="metric-detail">Hybrid Ensemble (XGBoost + BiLSTM) outperforming individual baselines.</p>
-          </div>
-
-          <div className="metric-box" style={{ '--stagger': 3 }}>
             <div className="metric-box-top"><span className="metric-badge">Horizon</span></div>
             <div className="metric-number">
               <AnimatedCounter end={30} suffix=" Days" duration={1600} />
