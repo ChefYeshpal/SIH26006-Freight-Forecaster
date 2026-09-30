@@ -9,7 +9,7 @@
   background: rgba(5, 8, 10, 0.72);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  z-index: 9999;
+  z-index: 11000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -610,6 +610,121 @@
 .alarm-status-dot.active {
   box-shadow: 0 0 6px #22c55e;
   animation: alarmPulseDot 1.8s infinite;
+}
+
+@media (max-width: 600px) {
+  .alarm-modal-backdrop {
+    align-items: flex-start;
+    padding: 0.75rem;
+  }
+
+  .alarm-modal-container {
+    max-height: calc(100vh - 1.5rem);
+    border-radius: 10px;
+  }
+
+  .alarm-modal-header {
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .alarm-modal-title-wrap {
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .alarm-modal-title {
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+
+  .alarm-modal-subtitle {
+    line-height: 1.35;
+  }
+
+  .alarm-modal-close-btn {
+    flex: 0 0 auto;
+    margin: -0.25rem -0.25rem 0 0;
+  }
+
+  .alarm-modal-tabs {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .alarm-modal-tab-btn {
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .alarm-modal-body {
+    padding: 1rem;
+  }
+
+  .alarm-tab-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .alarm-tab-toolbar > div {
+    width: 100%;
+  }
+
+  .alarm-tab-toolbar .alarm-btn-sm,
+  .alarm-tab-toolbar .alarm-btn-primary {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .alarm-trigger-header {
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .alarm-trigger-title-wrap {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .alarm-trigger-title {
+    overflow-wrap: anywhere;
+  }
+
+  .alarm-trigger-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .alarm-form-card {
+    padding: 1rem;
+  }
+
+  .alarm-form-actions,
+  .alarm-modal-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .alarm-form-actions > button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .alarm-modal-footer {
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .alarm-rule-item {
+    align-items: flex-start;
+  }
 }
 
 @keyframes alarmPulseDot {
